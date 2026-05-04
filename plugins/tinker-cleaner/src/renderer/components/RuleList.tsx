@@ -81,7 +81,7 @@ export default observer(function RuleList() {
         columnDefs={columnDefs}
         rowData={store.filteredRules}
         getRowId={getRowId}
-        headerHeight={ROW_HEIGHT}
+        headerHeight={40}
         rowHeight={ROW_HEIGHT}
         enableCellTextSelection={true}
         suppressCellFocus={true}
