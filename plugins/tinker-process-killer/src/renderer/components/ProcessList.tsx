@@ -192,8 +192,6 @@ export default observer(function ProcessList() {
       rowData={store.filteredProcesses}
       getRowId={getRowId}
       onRowClicked={onRowClicked}
-      headerHeight={40}
-      rowHeight={40}
       animateRows={false}
       enableCellTextSelection={true}
       suppressCellFocus={true}

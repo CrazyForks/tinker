@@ -116,16 +116,16 @@ Use `getSearchCardProps(toolMsg)` to extract `SearchCardProps` from an `AgentMes
 ```ts
 import HexEditor from 'share/components/HexEditor'
 
-<HexEditor
-  data={store.data}       // Uint8Array
-  nonce={store.nonce}     // number – bump to force re-render
-  isDark={store.isDark}   // boolean – switches light/dark theme
+;<HexEditor
+  data={store.data} // Uint8Array
+  nonce={store.nonce} // number – bump to force re-render
+  isDark={store.isDark} // boolean – switches light/dark theme
   onSetValue={handleSetValue} // (offset: number, value: number) => void
-  columns={0x10}          // optional, default 0x10
-  showAscii={true}        // optional, default true
+  columns={0x10} // optional, default 0x10
+  showAscii={true} // optional, default true
   showColumnLabels={true} // optional, default true
-  showRowLabels={true}    // optional, default true
-  className=""            // optional
+  showRowLabels={true} // optional, default true
+  className="" // optional
 />
 ```
 
@@ -138,10 +138,10 @@ import VideoPlayer from 'share/components/VideoPlayer'
 import { createPlayer } from '@videojs/react'
 import { Video, videoFeatures } from '@videojs/react/video'
 
-<VideoPlayer
-  locale="en-US"           // optional, default 'en-US', built-in: 'en-US' | 'zh-CN'
-  disabled={false}         // optional, dims controls when true
-  onTogglePlaylist={fn}    // optional, shows playlist button when provided
+;<VideoPlayer
+  locale="en-US" // optional, default 'en-US', built-in: 'en-US' | 'zh-CN'
+  disabled={false} // optional, dims controls when true
+  onTogglePlaylist={fn} // optional, shows playlist button when provided
 >
   <Video src={src} autoPlay />
 </VideoPlayer>
@@ -161,6 +161,8 @@ import NavList from 'share/components/NavList'
 import Tree from 'share/components/Tree'
 import Grid from 'share/components/Grid'
 ```
+
+`Grid` uses AG Grid defaults for header and row height unless you override them.
 
 ## Hooks
 
@@ -247,7 +249,14 @@ import {
 ## Utilities
 
 ```ts
-import { isDiskNodeDirectory, mediaDurationFormat, openImageFile, fileExists, resolveSavePath, getFileIcon } from 'share/lib/util'
+import {
+  isDiskNodeDirectory,
+  mediaDurationFormat,
+  openImageFile,
+  fileExists,
+  resolveSavePath,
+  getFileIcon,
+} from 'share/lib/util'
 
 // Check if a DiskUsageResult node is a directory
 isDiskNodeDirectory(node, fullPath) // uses children or fstat fallback

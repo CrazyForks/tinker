@@ -9,6 +9,11 @@ import { THEME_COLORS } from 'share/theme'
 
 ModuleRegistry.registerModules([AllCommunityModule])
 
+const GRID_DEFAULTS = {
+  headerHeight: 40,
+  rowHeight: 40,
+}
+
 interface GridProps<TData> extends AgGridReactProps<TData> {
   isDark: boolean
 }
@@ -49,7 +54,12 @@ function GridInner<TData>(
 
   return (
     <div className="h-full">
-      <AgGridReact<TData> ref={ref} theme={theme} {...props} />
+      <AgGridReact<TData>
+        ref={ref}
+        theme={theme}
+        {...GRID_DEFAULTS}
+        {...props}
+      />
     </div>
   )
 }

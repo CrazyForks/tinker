@@ -103,8 +103,6 @@ export default observer(function FileList() {
       getRowId={getRowId}
       onRowClicked={onRowClicked}
       getRowClass={getRowClass}
-      headerHeight={40}
-      rowHeight={40}
       animateRows={false}
       enableCellTextSelection={true}
       suppressCellFocus={true}

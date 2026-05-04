@@ -133,8 +133,6 @@ export default observer(function AiSection({
         onRowClicked={onRowClicked}
         getRowId={getRowId}
         getRowClass={getRowClass}
-        headerHeight={40}
-        rowHeight={40}
         animateRows={false}
         enableCellTextSelection={false}
         suppressCellFocus={true}

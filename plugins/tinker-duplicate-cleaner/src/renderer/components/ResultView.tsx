@@ -238,8 +238,6 @@ export default observer(function ResultView() {
         columnDefs={columnDefs}
         rowData={rowData}
         getRowId={getRowId}
-        headerHeight={36}
-        rowHeight={36}
         isFullWidthRow={isFullWidthRow}
         fullWidthCellRenderer={fullWidthCellRenderer}
         onRowClicked={onRowClicked}

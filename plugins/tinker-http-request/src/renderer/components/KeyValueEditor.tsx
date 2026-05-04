@@ -227,8 +227,6 @@ export default observer(function KeyValueEditor({
           columnDefs={columnDefs}
           rowData={rowData}
           getRowId={getRowId}
-          headerHeight={32}
-          rowHeight={36}
           animateRows={false}
           enableCellTextSelection={true}
           suppressCellFocus={true}

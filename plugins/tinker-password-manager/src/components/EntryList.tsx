@@ -110,8 +110,6 @@ export default observer(function EntryList() {
       onRowClicked={onRowClicked}
       getRowId={getRowId}
       getRowClass={getRowClass}
-      headerHeight={40}
-      rowHeight={40}
       animateRows={true}
       enableCellTextSelection={false}
       suppressCellFocus={true}

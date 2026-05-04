@@ -220,8 +220,6 @@ export default observer(function RuleList() {
             params.rowNode?.data?.description ?? ''
           }
           onRowDragEnd={onRowDragEnd}
-          headerHeight={40}
-          rowHeight={40}
           animateRows={false}
           enableCellTextSelection={true}
           suppressCellFocus={true}

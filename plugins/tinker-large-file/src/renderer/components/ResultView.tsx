@@ -126,8 +126,6 @@ export default observer(function ResultView() {
         columnDefs={columnDefs}
         rowData={store.filteredFiles}
         getRowId={getRowId}
-        headerHeight={ROW_HEIGHT}
-        rowHeight={ROW_HEIGHT}
         enableCellTextSelection={true}
         suppressCellFocus={true}
         overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
