@@ -64,7 +64,22 @@ function createWebview(tabId: string, url: string): Electron.WebviewTag {
     const { params } = e as unknown as ContextMenuEvent
     tinker.showContextMenu(params.x, params.y, [
       {
-        label: i18n.t('inspectElement'),
+        label: i18n.t('back'),
+        click: () => store.goBack(),
+        enabled: wv.canGoBack(),
+      },
+      {
+        label: i18n.t('forward'),
+        click: () => store.goForward(),
+        enabled: wv.canGoForward(),
+      },
+      {
+        label: i18n.t('reload'),
+        click: () => store.reload(),
+      },
+      { type: 'separator' },
+      {
+        label: i18n.t('inspect'),
         click: () => store.inspectElement(params.x, params.y),
       },
     ])
