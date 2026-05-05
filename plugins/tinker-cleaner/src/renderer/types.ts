@@ -1,3 +1,7 @@
+import type { Category } from '../common/types'
+
+export type { Category }
+
 export interface CleanRule {
   id: string
   category: Category
@@ -6,5 +10,3 @@ export interface CleanRule {
   size: number
   scanned: boolean
 }
-
-export type Category = 'system' | 'userCache' | 'browser' | 'devTools' | 'app'

@@ -29,7 +29,7 @@ export default observer(function Sidebar() {
 
   return (
     <div
-      className={`w-36 ${tw.bg.tertiary} border-r ${tw.border} flex flex-col flex-shrink-0`}
+      className={`w-52 ${tw.bg.tertiary} border-r ${tw.border} flex flex-col flex-shrink-0`}
     >
       <div className="flex-1 overflow-y-auto">
         <NavList
