@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite'
 import { useRef, useEffect, useCallback } from 'react'
 import { autorun } from 'mobx'
 import { X } from 'lucide-react'
+import { Panel, Group, useDefaultLayout } from 'react-resizable-panels'
 import { tw } from 'share/theme'
 import store from '../store'
 import NewTabPage from './NewTabPage'
@@ -115,9 +116,9 @@ function DevToolsPanel({ onReady }: DevToolsPanelProps) {
   }, [onReady])
 
   return (
-    <div className={`h-[40%] flex flex-col ${tw.border} border-t`}>
+    <div className="h-full flex flex-col">
       <div
-        className={`flex items-center justify-end px-2 py-1 ${tw.bg.secondary}`}
+        className={`flex items-center justify-end px-2 py-1 ${tw.bg.secondary} ${tw.border} border-t`}
       >
         <button
           className={`p-0.5 rounded ${tw.text.secondary} ${tw.hover}`}
@@ -133,6 +134,11 @@ function DevToolsPanel({ onReady }: DevToolsPanelProps) {
 
 export default observer(function WebviewContainer() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const { defaultLayout, onLayoutChange } = useDefaultLayout({
+    panelIds: ['webview', 'devtools'],
+    id: 'tinker-browser-layout',
+    storage: localStorage,
+  })
 
   useEffect(() => {
     const container = containerRef.current
@@ -184,10 +190,23 @@ export default observer(function WebviewContainer() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div ref={containerRef} className="flex-1 relative overflow-hidden">
-        {showNewTab && <NewTabPage />}
-      </div>
-      {store.devToolsOpen && <DevToolsPanel onReady={handleDevToolsReady} />}
+      <Group
+        orientation="vertical"
+        className="h-full"
+        defaultLayout={defaultLayout}
+        onLayoutChange={onLayoutChange}
+      >
+        <Panel id="webview" minSize={100}>
+          <div ref={containerRef} className="h-full relative overflow-hidden">
+            {showNewTab && <NewTabPage />}
+          </div>
+        </Panel>
+        {store.devToolsOpen && (
+          <Panel id="devtools" minSize={80} defaultSize={300}>
+            <DevToolsPanel onReady={handleDevToolsReady} />
+          </Panel>
+        )}
+      </Group>
     </div>
   )
 })
