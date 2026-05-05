@@ -8,18 +8,42 @@ export interface RuleDef {
 }
 
 const rules: RuleDef[] = [
-  // System temp
+  // System
   {
     id: 'sys-tmp',
     category: 'system',
-    nameKey: 'rule.systemTmp',
+    nameKey: 'rule.sysTmp',
     pathTemplate: '/private/tmp',
   },
   {
-    id: 'sys-var-tmp',
+    id: 'sys-log',
     category: 'system',
-    nameKey: 'rule.systemVarTmp',
-    pathTemplate: '/private/var/tmp',
+    nameKey: 'rule.sysLog',
+    pathTemplate: '/private/var/log',
+  },
+  {
+    id: 'sys-diagnostics',
+    category: 'system',
+    nameKey: 'rule.sysDiagnostics',
+    pathTemplate: '/private/var/db/diagnostics',
+  },
+  {
+    id: 'sys-powerlog',
+    category: 'system',
+    nameKey: 'rule.sysPowerlog',
+    pathTemplate: '/private/var/db/powerlog',
+  },
+  {
+    id: 'sys-crash-reports',
+    category: 'system',
+    nameKey: 'rule.sysCrashReports',
+    pathTemplate: '/Library/Logs/DiagnosticReports',
+  },
+  {
+    id: 'sys-updates',
+    category: 'system',
+    nameKey: 'rule.sysUpdates',
+    pathTemplate: '/Library/Updates',
   },
 
   // User cache
@@ -35,42 +59,46 @@ const rules: RuleDef[] = [
     nameKey: 'rule.userLogs',
     pathTemplate: '~/Library/Logs',
   },
+  {
+    id: 'user-helpd',
+    category: 'userCache',
+    nameKey: 'rule.userHelpd',
+    pathTemplate: '~/Library/Caches/com.apple.helpd',
+  },
+  {
+    id: 'user-geo',
+    category: 'userCache',
+    nameKey: 'rule.userGeo',
+    pathTemplate: '~/Library/Caches/GeoServices',
+  },
+  {
+    id: 'sandbox-wallpaper',
+    category: 'userCache',
+    nameKey: 'rule.sandboxWallpaper',
+    pathTemplate:
+      '~/Library/Containers/com.apple.wallpaper.agent/Data/Library/Caches',
+  },
+  {
+    id: 'sandbox-mediaanalysis',
+    category: 'userCache',
+    nameKey: 'rule.sandboxMediaAnalysis',
+    pathTemplate:
+      '~/Library/Containers/com.apple.mediaanalysisd/Data/Library/Caches',
+  },
+  {
+    id: 'sandbox-appstore',
+    category: 'userCache',
+    nameKey: 'rule.sandboxAppStore',
+    pathTemplate: '~/Library/Containers/com.apple.AppStore/Data/Library/Caches',
+  },
+  {
+    id: 'xcode-doc-cache',
+    category: 'userCache',
+    nameKey: 'rule.xcodeDocCache',
+    pathTemplate: '~/Library/Developer/Xcode/DocumentationCache',
+  },
 
-  // System log
-  {
-    id: 'sys-log',
-    category: 'systemLog',
-    nameKey: 'rule.systemLog',
-    pathTemplate: '/private/var/log',
-  },
-  {
-    id: 'crash-reports',
-    category: 'systemLog',
-    nameKey: 'rule.crashReports',
-    pathTemplate: '~/Library/DiagnosticReports',
-  },
-
-  // App cache
-  {
-    id: 'saved-app-state',
-    category: 'appCache',
-    nameKey: 'rule.savedAppState',
-    pathTemplate: '~/Library/Saved Application State',
-  },
-  {
-    id: 'quicklook-cache',
-    category: 'appCache',
-    nameKey: 'rule.quicklookCache',
-    pathTemplate: '~/Library/Caches/com.apple.QuickLook.thumbnailcache',
-  },
-
-  // Browser cache
-  {
-    id: 'safari-cache',
-    category: 'browser',
-    nameKey: 'rule.safariCache',
-    pathTemplate: '~/Library/Caches/com.apple.Safari',
-  },
+  // Browser
   {
     id: 'chrome-cache',
     category: 'browser',
@@ -78,22 +106,86 @@ const rules: RuleDef[] = [
     pathTemplate: '~/Library/Caches/Google/Chrome',
   },
   {
-    id: 'edge-cache',
+    id: 'chrome-app-support',
     category: 'browser',
-    nameKey: 'rule.edgeCache',
-    pathTemplate: '~/Library/Caches/com.microsoft.edgemac',
+    nameKey: 'rule.chromeAppSupport',
+    pathTemplate: '~/Library/Application Support/Google/Chrome',
   },
   {
-    id: 'firefox-cache',
+    id: 'puppeteer',
     category: 'browser',
-    nameKey: 'rule.firefoxCache',
-    pathTemplate: '~/Library/Caches/Firefox',
+    nameKey: 'rule.puppeteer',
+    pathTemplate: '~/.cache/puppeteer',
+  },
+
+  // Dev tools
+  {
+    id: 'npm-cacache',
+    category: 'devTools',
+    nameKey: 'rule.npmCacache',
+    pathTemplate: '~/.npm/_cacache',
   },
   {
-    id: 'arc-cache',
-    category: 'browser',
-    nameKey: 'rule.arcCache',
-    pathTemplate: '~/Library/Caches/company.thebrowser.Browser',
+    id: 'npm-npx',
+    category: 'devTools',
+    nameKey: 'rule.npmNpx',
+    pathTemplate: '~/.npm/_npx',
+  },
+  {
+    id: 'yarn-cache',
+    category: 'devTools',
+    nameKey: 'rule.yarnCache',
+    pathTemplate: '~/Library/Caches/Yarn',
+  },
+  {
+    id: 'bun-cache',
+    category: 'devTools',
+    nameKey: 'rule.bunCache',
+    pathTemplate: '~/.bun/install/cache',
+  },
+  {
+    id: 'pip-cache',
+    category: 'devTools',
+    nameKey: 'rule.pipCache',
+    pathTemplate: '~/Library/Caches/pip',
+  },
+  {
+    id: 'cargo-registry',
+    category: 'devTools',
+    nameKey: 'rule.cargoRegistry',
+    pathTemplate: '~/.cargo/registry/cache',
+  },
+  {
+    id: 'gradle-caches',
+    category: 'devTools',
+    nameKey: 'rule.gradleCaches',
+    pathTemplate: '~/.gradle/caches',
+  },
+  {
+    id: 'huggingface',
+    category: 'devTools',
+    nameKey: 'rule.huggingface',
+    pathTemplate: '~/.cache/huggingface',
+  },
+  {
+    id: 'homebrew',
+    category: 'devTools',
+    nameKey: 'rule.homebrew',
+    pathTemplate: '~/Library/Caches/Homebrew',
+  },
+
+  // App
+  {
+    id: 'vscode-cached-data',
+    category: 'app',
+    nameKey: 'rule.vscodeCachedData',
+    pathTemplate: '~/Library/Application Support/Code/CachedData',
+  },
+  {
+    id: 'vscode-cache',
+    category: 'app',
+    nameKey: 'rule.vscodeCache',
+    pathTemplate: '~/Library/Application Support/Code/Cache',
   },
 ]
 
@@ -108,7 +200,7 @@ export const categories: { id: Category | 'all'; nameKey: string }[] = [
   { id: 'all', nameKey: 'category.all' },
   { id: 'system', nameKey: 'category.system' },
   { id: 'userCache', nameKey: 'category.userCache' },
-  { id: 'systemLog', nameKey: 'category.systemLog' },
-  { id: 'appCache', nameKey: 'category.appCache' },
   { id: 'browser', nameKey: 'category.browser' },
+  { id: 'devTools', nameKey: 'category.devTools' },
+  { id: 'app', nameKey: 'category.app' },
 ]

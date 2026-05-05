@@ -39,7 +39,9 @@ class Store extends BaseStore {
   }
 
   get visibleRules(): CleanRule[] {
-    return this.rules.filter((r) => r.scanned && r.size > 0)
+    return this.rules
+      .filter((r) => r.scanned && r.size > 0)
+      .sort((a, b) => b.size - a.size)
   }
 
   get filteredRules(): CleanRule[] {
@@ -127,7 +129,7 @@ class Store extends BaseStore {
       try {
         const result = await tinker.getDiskUsage({
           paths: [rule.path],
-          maxDepth: 0,
+          maxDepth: 1,
           minRatio: 0,
           silentErrors: true,
         })

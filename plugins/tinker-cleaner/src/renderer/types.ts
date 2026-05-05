@@ -7,9 +7,4 @@ export interface CleanRule {
   scanned: boolean
 }
 
-export type Category =
-  | 'system'
-  | 'userCache'
-  | 'systemLog'
-  | 'appCache'
-  | 'browser'
+export type Category = 'system' | 'userCache' | 'browser' | 'devTools' | 'app'

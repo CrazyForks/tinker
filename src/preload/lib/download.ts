@@ -77,30 +77,24 @@ export function resumeDownload(downloadId: string): void {
   ipcRenderer.invoke('resumePluginDownload', downloadId)
 }
 
-export function cancelDownload(downloadId: string): void {
-  ipcRenderer.invoke('cancelPluginDownload', downloadId)
+function removePending(downloadId: string, reason: string): void {
   const pending = pendingCallbacks.get(downloadId)
   if (pending) {
     clearTimeout(pending.timeout)
-    if (pending.onProgress) {
-      pending.onProgress({ state: 'cancelled' } as IDownloadProgress)
-    }
-    pending.reject(new Error('Download cancelled'))
+    pending.onProgress?.({ state: 'cancelled' } as IDownloadProgress)
+    pending.reject(new Error(reason))
     pendingCallbacks.delete(downloadId)
   }
 }
 
+export function cancelDownload(downloadId: string): void {
+  ipcRenderer.invoke('cancelPluginDownload', downloadId)
+  removePending(downloadId, 'Download cancelled')
+}
+
 export function deleteDownload(downloadId: string): void {
   ipcRenderer.invoke('deletePluginDownload', downloadId)
-  const pending = pendingCallbacks.get(downloadId)
-  if (pending) {
-    clearTimeout(pending.timeout)
-    if (pending.onProgress) {
-      pending.onProgress({ state: 'cancelled' } as IDownloadProgress)
-    }
-    pending.reject(new Error('Download deleted'))
-    pendingCallbacks.delete(downloadId)
-  }
+  removePending(downloadId, 'Download deleted')
 }
 
 export async function getDownloads(): Promise<IDownloadProgress[]> {

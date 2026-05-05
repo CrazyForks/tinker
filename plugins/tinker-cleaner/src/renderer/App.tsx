@@ -6,7 +6,6 @@ import store from './store'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
 import RuleList from './components/RuleList'
-import StatusBar from './components/StatusBar'
 import ScanningView from './components/ScanningView'
 
 export default observer(function App() {
@@ -28,7 +27,6 @@ export default observer(function App() {
               <Sidebar />
               <RuleList />
             </div>
-            <StatusBar />
           </>
         )}
       </div>

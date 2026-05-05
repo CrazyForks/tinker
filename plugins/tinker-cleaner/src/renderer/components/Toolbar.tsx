@@ -64,11 +64,9 @@ export default observer(function ToolbarComponent() {
         />
       </ToolbarButton>
       <ToolbarSeparator />
-      <ToolbarButton onClick={handleToggleAll}>
-        <span className="text-xs">
-          {store.allFilteredSelected ? t('deselectAll') : t('selectAll')}
-        </span>
-      </ToolbarButton>
+      <Checkbox checked={store.allFilteredSelected} onChange={handleToggleAll}>
+        {t('selectAll')}
+      </Checkbox>
       <ToolbarSpacer />
       {store.selectedCount > 0 && (
         <span className={`text-xs ${tw.text.secondary} mr-2`}>

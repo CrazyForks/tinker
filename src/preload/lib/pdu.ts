@@ -8,6 +8,10 @@ import { isDev } from 'share/common/util'
 
 export interface DiskUsageOptions {
   paths: string[]
+  /**
+   * Maximum depth to request from `pdu`.
+   * `0` is accepted here and normalized to a valid `pdu` depth.
+   */
   maxDepth?: number
   quantity?: 'apparent-size' | 'block-size' | 'block-count'
   minRatio?: number
@@ -92,16 +96,34 @@ class PduTask {
         }
       })
 
-      this.pduProcess.on('close', (code) => {
+      this.pduProcess.on('close', (code, signal) => {
         if (code === 0 || stdoutData) {
           try {
             const result = JSON.parse(stdoutData)
             resolve(result.tree)
           } catch {
-            reject(new Error('Failed to parse pdu output'))
+            reject(
+              new Error(
+                this.buildFailureMessage(
+                  'Failed to parse pdu output',
+                  code,
+                  signal,
+                  stderrData
+                )
+              )
+            )
           }
         } else {
-          reject(new Error(`pdu process exited with code ${code}`))
+          reject(
+            new Error(
+              this.buildFailureMessage(
+                'pdu process failed',
+                code,
+                signal,
+                stderrData
+              )
+            )
+          )
         }
       })
 
@@ -118,8 +140,9 @@ class PduTask {
       args.push('--progress')
     }
 
-    if (options.maxDepth !== undefined) {
-      args.push('--max-depth', String(options.maxDepth))
+    const maxDepth = this.normalizeMaxDepth(options.maxDepth)
+    if (maxDepth !== undefined) {
+      args.push('--max-depth', String(maxDepth))
     }
 
     if (options.quantity) {
@@ -145,6 +168,36 @@ class PduTask {
     args.push(...options.paths)
 
     return args
+  }
+
+  private normalizeMaxDepth(maxDepth?: number): number | undefined {
+    if (maxDepth === undefined) {
+      return undefined
+    }
+
+    return maxDepth <= 0 ? 1 : maxDepth
+  }
+
+  private buildFailureMessage(
+    prefix: string,
+    code: number | null,
+    signal: NodeJS.Signals | null,
+    stderrData: string
+  ): string {
+    const details: string[] = []
+    if (code !== null) {
+      details.push(`code ${code}`)
+    }
+    if (signal) {
+      details.push(`signal ${signal}`)
+    }
+
+    const stderr = stderrData.trim()
+    if (stderr) {
+      details.push(stderr)
+    }
+
+    return details.length > 0 ? `${prefix}: ${details.join('; ')}` : prefix
   }
 
   getPromise(): Promise<DiskUsageResult> {

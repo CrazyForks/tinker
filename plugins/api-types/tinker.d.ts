@@ -54,9 +54,10 @@ declare global {
       /** Absolute or relative paths to analyze. */
       paths: string[]
       /**
-       * Maximum depth of descendants to include in the returned tree.
+       * Maximum depth to request from `pdu`.
        * Sizes beyond this depth still count toward ancestor totals.
-       * Example: `0` keeps only the root node, `1` keeps root + direct children.
+       * `0` is accepted here and normalized to `1` so the returned tree keeps
+       * only the root node.
        */
       maxDepth?: number
       /**

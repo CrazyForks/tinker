@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { useMemo, useCallback } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import type { CellStyle, ColDef, ICellRendererParams } from 'ag-grid-community'
 import fileSize from 'licia/fileSize'
 import Grid from 'share/components/Grid'
@@ -24,6 +24,25 @@ const CheckboxCell = observer(function CheckboxCell({
         onChange={() => store.toggleRule(data.id)}
       />
     </div>
+  )
+})
+
+const PathCell = memo(function PathCell({
+  data,
+}: ICellRendererParams<CleanRule>) {
+  if (!data) return null
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    tinker.showItemInPath(data.path)
+  }
+  return (
+    <span
+      className="cursor-pointer hover:underline"
+      onClick={handleClick}
+      title={data.path}
+    >
+      {data.path}
+    </span>
   )
 })
 
@@ -53,6 +72,7 @@ export default observer(function RuleList() {
         flex: 3,
         minWidth: 200,
         sortable: false,
+        cellRenderer: PathCell,
       },
       {
         field: 'size',
