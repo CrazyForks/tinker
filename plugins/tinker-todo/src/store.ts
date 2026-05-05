@@ -31,6 +31,7 @@ class Store extends BaseStore {
   error: string | null = null
   needsFileSelection: boolean = false
   recentFiles: string[] = []
+  popupWindow: Window | null = null
 
   constructor() {
     super()
@@ -132,6 +133,10 @@ class Store extends BaseStore {
   }
 
   closeFile() {
+    if (this.popupWindow && !this.popupWindow.closed) {
+      this.popupWindow.close()
+    }
+    this.popupWindow = null
     this.filePath = ''
     this.todos = []
     this.needsFileSelection = true

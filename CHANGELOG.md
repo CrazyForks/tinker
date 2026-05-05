@@ -1,3 +1,9 @@
+## v1.13.0 (5 May 2026)
+
+* feat: add cleaner
+* feat: add float
+* feat: integrate npm for downloading official plugins
+
 ## v1.12.0 (25 Apr 2026)
 
 * feat: search local apps setting

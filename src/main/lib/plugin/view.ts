@@ -148,19 +148,18 @@ export const openPlugin: IpcOpenPlugin = function (id, detached) {
     const { view, win } = pluginViews[id]
     // Backgrounded plugin: reattach the existing view
     if (!win) {
+      const title = view.webContents.getTitle()
       const mainWin = window.getWin('main')
-      if (detached || !mainWin) {
-        const newWin = pluginWin.showWin(plugin)
-        pluginViews[id].win = newWin
-        updatePluginTheme(id)
-        newWin.contentView.addChildView(view)
-        layoutPlugin(id)
-      } else {
-        pluginViews[id].win = mainWin
-        updatePluginTheme(id)
-        mainWin.contentView.addChildView(view)
-        layoutPlugin(id)
-      }
+      const targetWin =
+        detached || !mainWin ? pluginWin.showWin(plugin) : mainWin
+      pluginViews[id].win = targetWin
+      updatePluginTheme(id)
+      targetWin.contentView.addChildView(view)
+      layoutPlugin(id)
+      setTimeout(
+        () => targetWin.webContents.send('updatePluginTitle', title),
+        100
+      )
       return true
     }
     win.show()
