@@ -54,5 +54,9 @@
   "rule.huggingface": "Hugging Face 缓存",
   "rule.homebrew": "Homebrew 缓存",
   "rule.vscodeCachedData": "VS Code 缓存数据",
-  "rule.vscodeCache": "VS Code 缓存"
+  "rule.vscodeCache": "VS Code 缓存",
+  "rule.chromeServiceWorker": "Chrome Service Worker 缓存",
+  "rule.edgeServiceWorker": "Edge Service Worker 缓存",
+  "rule.steamHtmlCache": "Steam 网页缓存",
+  "rule.steamCodeCache": "Steam 代码缓存"
 }

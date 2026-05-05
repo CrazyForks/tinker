@@ -54,5 +54,9 @@
   "rule.huggingface": "Hugging Face Cache",
   "rule.homebrew": "Homebrew Cache",
   "rule.vscodeCachedData": "VS Code Cached Data",
-  "rule.vscodeCache": "VS Code Cache"
+  "rule.vscodeCache": "VS Code Cache",
+  "rule.chromeServiceWorker": "Chrome Service Worker Cache",
+  "rule.edgeServiceWorker": "Edge Service Worker Cache",
+  "rule.steamHtmlCache": "Steam HTML Cache",
+  "rule.steamCodeCache": "Steam Code Cache"
 }

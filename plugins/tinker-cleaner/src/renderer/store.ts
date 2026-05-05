@@ -2,7 +2,6 @@ import { makeAutoObservable, runInAction } from 'mobx'
 import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
 import type { CleanRule, Category } from './types'
-import { resolveRules } from './lib/rules'
 
 const localStore = new LocalStore('tinker-cleaner')
 
@@ -23,14 +22,13 @@ class Store extends BaseStore {
   }
 
   async init() {
-    const homePath = cleaner.getHomePath()
-    const defs = resolveRules(homePath)
+    const defs = cleaner.getRules()
     runInAction(() => {
       this.rules = defs.map((def) => ({
         id: def.id,
-        category: def.category,
+        category: def.category as Category,
         nameKey: def.nameKey,
-        path: def.pathTemplate,
+        path: def.path,
         size: 0,
         scanned: false,
       }))
