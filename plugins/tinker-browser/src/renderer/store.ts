@@ -23,6 +23,8 @@ class Store extends BaseStore {
   editingSite: ISite | null = null
 
   webviewRefs: Map<string, Electron.WebviewTag> = new Map()
+  devToolsOpen = false
+  devToolsWebviewRef: Electron.WebviewTag | null = null
 
   private nextId = 1
 
@@ -30,6 +32,8 @@ class Store extends BaseStore {
     super()
     makeAutoObservable(this, {
       webviewRefs: false,
+      devToolsWebviewRef: false,
+      pendingInspect: false,
     })
     this.addTab()
     this.loadSites()
@@ -257,6 +261,48 @@ class Store extends BaseStore {
       } else {
         wv.reload()
       }
+    }
+  }
+
+  openDevTools() {
+    this.devToolsOpen = true
+  }
+
+  closeDevTools() {
+    this.devToolsOpen = false
+  }
+
+  toggleDevTools() {
+    this.devToolsOpen = !this.devToolsOpen
+  }
+
+  pendingInspect: { x: number; y: number } | null = null
+
+  inspectElement(x: number, y: number) {
+    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
+    if (!wv) return
+
+    if (!this.devToolsOpen) {
+      this.devToolsOpen = true
+      this.pendingInspect = { x, y }
+    } else {
+      wv.inspectElement(x, y)
+    }
+  }
+
+  connectDevTools() {
+    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
+    const devWv = this.devToolsWebviewRef
+    if (wv && devWv) {
+      tinker
+        .openDevtools(wv.getWebContentsId(), devWv.getWebContentsId())
+        .then(() => {
+          if (this.pendingInspect) {
+            const { x, y } = this.pendingInspect
+            this.pendingInspect = null
+            wv.inspectElement(x, y)
+          }
+        })
     }
   }
 }

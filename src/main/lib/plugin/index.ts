@@ -3,7 +3,7 @@ import { handleEvent } from 'share/main/lib/util'
 import path from 'path'
 import fs from 'fs-extra'
 import startWith from 'licia/startWith'
-import { ipcMain, Notification, session } from 'electron'
+import { ipcMain, Notification, session, webContents } from 'electron'
 import { getClipboardFilePaths } from '../clipboard'
 import { captureScreen } from '../screen'
 import { getFileIcon as getFileIconBuffer } from '../fileIcon'
@@ -91,6 +91,18 @@ export function init() {
   handleEvent('checkPluginUpdate', checkPluginUpdate)
   handleEvent('captureScreen', captureScreen)
   handleEvent('pluginGetFileIcon', getFileIcon)
+  handleEvent(
+    'openPluginDevtools',
+    (srcWebContentsId: number, devtoolsWebContentsId: number) => {
+      const src = webContents.fromId(srcWebContentsId)
+      const devtools = webContents.fromId(devtoolsWebContentsId)
+      if (src && devtools) {
+        src.setDevToolsWebContents(devtools)
+        src.openDevTools()
+        devtools.executeJavaScript('window.location.reload()')
+      }
+    }
+  )
   ipcMain.handle('showPluginNotification', (event, body: string) => {
     if (!Notification.isSupported()) {
       return

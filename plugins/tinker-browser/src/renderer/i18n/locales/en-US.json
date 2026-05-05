@@ -11,5 +11,6 @@
   "save": "Save",
   "cancel": "Cancel",
   "edit": "Edit",
-  "delete": "Delete"
+  "delete": "Delete",
+  "inspectElement": "Inspect Element"
 }

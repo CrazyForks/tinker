@@ -179,6 +179,7 @@ export function injectApi() {
     getAIProviders: _tinker.getProviderList,
     download,
     getDownloads,
+    openDevtools: _tinker.openDevtools,
   }
 
   async function getDownloads() {
