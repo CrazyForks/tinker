@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { Trash2, ExternalLink, Circle } from 'lucide-react'
-import { createRoot } from 'react-dom/client'
+import { openPopupWindow } from 'share/lib/popupWindow'
 import { tw } from 'share/theme'
 import { confirm } from 'share/components/Confirm'
 import store, { STICKY_COLORS, type Sticky } from '../store'
@@ -124,31 +124,10 @@ export default observer(function StickyCard({ sticky }: StickyCardProps) {
   function handleOpenWindow(e: React.MouseEvent) {
     e.stopPropagation()
 
-    const popup = window.open(
-      '',
-      '_blank',
-      'width=400,height=350,minWidth=300,minHeight=200,alwaysOnTop=true,frame=no'
+    openPopupWindow(
+      { width: 400, height: 350, minWidth: 300, minHeight: 200 },
+      (_popup, onClose) => <PopupEditor sticky={sticky} onClose={onClose} />
     )
-    if (!popup) return
-
-    const styles = document.querySelectorAll('style, link[rel="stylesheet"]')
-    styles.forEach((node) => {
-      popup.document.head.appendChild(node.cloneNode(true))
-    })
-
-    const container = popup.document.createElement('div')
-    container.id = 'popup-root'
-    popup.document.body.style.margin = '0'
-    popup.document.documentElement.className =
-      document.documentElement.className
-    popup.document.body.appendChild(container)
-
-    const root = createRoot(container)
-    root.render(<PopupEditor sticky={sticky} onClose={() => popup.close()} />)
-
-    popup.addEventListener('beforeunload', () => {
-      root.unmount()
-    })
   }
 
   return (

@@ -316,6 +316,17 @@ class Store extends BaseStore {
     this.saveTodos()
   }
 
+  get todayTodos(): TodoItem[] {
+    const today = getLocalDateStr()
+    let filtered = filter(this.todos, (t) => t.dueDate === today)
+
+    if (!this.showCompleted) {
+      filtered = filter(filtered, (t) => !t.completed)
+    }
+
+    return this.sortTodos(filtered)
+  }
+
   get filteredTodos(): TodoItem[] {
     let filtered = this.todos.slice()
 
@@ -337,8 +348,12 @@ class Store extends BaseStore {
       filtered = filter(filtered, (t) => !t.completed)
     }
 
-    return sortBy(filtered, (todo) => {
-      const priorityOrder: Record<string, number> = { A: 0, B: 1, C: 2 }
+    return this.sortTodos(filtered)
+  }
+
+  private sortTodos(todos: TodoItem[]): TodoItem[] {
+    const priorityOrder: Record<string, number> = { A: 0, B: 1, C: 2 }
+    return sortBy(todos, (todo) => {
       const priority = todo.priority ? priorityOrder[todo.priority] : 3
       return `${todo.completed ? 1 : 0}-${priority}-${String(
         this.todos.indexOf(todo)

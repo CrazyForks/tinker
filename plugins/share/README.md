@@ -13,13 +13,9 @@ Tinker plugins should reuse the shared layer instead of rebuilding common UI, st
 ## Base Styles
 
 ```scss
-// src/index.scss
+// src/index.scss (use src/renderer/index.scss for preload plugins)
 @use '../../share/base.scss';
 @config "../tailwind.config.js";
-
-// src/renderer/index.scss
-@use '../../../share/base.scss';
-@config "../../tailwind.config.js";
 ```
 
 ## Theme
@@ -43,13 +39,11 @@ import BaseStore from 'share/BaseStore'
 
 class Store extends BaseStore {
   input = ''
-
   constructor() {
     super()
     makeAutoObservable(this)
   }
 }
-
 export default new Store()
 ```
 
@@ -61,12 +55,7 @@ Use `store.isDark` for theme-aware rendering.
 
 ```ts
 import {
-  Toolbar,
-  ToolbarButton,
-  ToolbarSeparator,
-  ToolbarSpacer,
-  ToolbarSearch,
-  TOOLBAR_ICON_SIZE,
+  Toolbar, ToolbarButton, ToolbarSeparator, ToolbarSpacer, ToolbarSearch, TOOLBAR_ICON_SIZE,
 } from 'share/components/Toolbar'
 ```
 
@@ -98,58 +87,32 @@ import Slider from 'share/components/Slider'
 ### AiChat
 
 ```ts
-import {
-  MessageList,
-  ChatInput,
-  MarkdownContent,
-  SearchCard,
-  type ChatMessage,
-} from 'share/components/AiChat'
+import { MessageList, ChatInput, MarkdownContent, SearchCard, type ChatMessage } from 'share/components/AiChat'
 ```
 
-Use `MessageList` and `ChatInput` for rendering only; provide your own `messages`, `send`, `retry`, `delete`, and session switching logic.
-Use `SearchCard` for `web_search` tool results and pass plain UI data like `query`, `results`, `isRunning`, and `error` from the plugin host.
-Use `getSearchCardProps(toolMsg)` to extract `SearchCardProps` from an `AgentMessage` — it handles safe data extraction and `isRunning` detection.
+`MessageList` and `ChatInput` are render-only; provide your own `messages`, `send`, `retry`, `delete`, and session logic. Use `getSearchCardProps(toolMsg)` to extract props for `SearchCard`.
 
 ### HexEditor
 
 ```ts
 import HexEditor from 'share/components/HexEditor'
-
-;<HexEditor
-  data={store.data} // Uint8Array
-  nonce={store.nonce} // number – bump to force re-render
-  isDark={store.isDark} // boolean – switches light/dark theme
-  onSetValue={handleSetValue} // (offset: number, value: number) => void
-  columns={0x10} // optional, default 0x10
-  showAscii={true} // optional, default true
-  showColumnLabels={true} // optional, default true
-  showRowLabels={true} // optional, default true
-  className="" // optional
-/>
+;<HexEditor data={uint8Array} nonce={n} isDark={bool} onSetValue={(offset, value) => {}} />
 ```
 
-Requires `react-hex-editor` and `styled-components` vendor scripts in the plugin's `index.html`.
+Requires `react-hex-editor` and `styled-components` vendor scripts.
 
 ### VideoPlayer
 
 ```ts
 import VideoPlayer from 'share/components/VideoPlayer'
-import { createPlayer } from '@videojs/react'
-import { Video, videoFeatures } from '@videojs/react/video'
-
-;<VideoPlayer
-  locale="en-US" // optional, default 'en-US', built-in: 'en-US' | 'zh-CN'
-  disabled={false} // optional, dims controls when true
-  onTogglePlaylist={fn} // optional, shows playlist button when provided
->
+;<VideoPlayer locale="en-US" disabled={false} onTogglePlaylist={fn}>
   <Video src={src} autoPlay />
 </VideoPlayer>
 ```
 
-Wrap `VideoPlayer` inside the player's `Provider` and `Container` from `createPlayer`. Requires `videojs` vendor scripts (`videojs/videojs.js` + `videojs/style.css`) in the plugin's `index.html`.
+Wrap inside the player's `Provider` and `Container` from `createPlayer`. Requires `videojs` vendor scripts.
 
-### Other Common Components
+### Other Components
 
 ```ts
 import CopyButton from 'share/components/CopyButton'
@@ -159,10 +122,8 @@ import ImageOpen from 'share/components/ImageOpen'
 import Tooltip from 'share/components/Tooltip'
 import NavList from 'share/components/NavList'
 import Tree from 'share/components/Tree'
-import Grid from 'share/components/Grid'
+import Grid from 'share/components/Grid'  // AG Grid defaults for header/row height
 ```
-
-`Grid` uses AG Grid defaults for header and row height unless you override them.
 
 ## Hooks
 
@@ -172,98 +133,57 @@ import { useCopyToClipboard } from 'share/hooks/useCopyToClipboard'
 
 ## Agent
 
-`share/lib/Agent` manages:
-
-- internal `messages`
-- AI streaming
-- tool-call loops
-- abort state
+Manages messages, AI streaming, tool-call loops, and abort state.
 
 ```ts
-import { Agent } from 'share/lib/Agent'
-import type { AgentTool } from 'share/lib/Agent'
-import { WEB_SEARCH_TOOL, createWebSearchToolResult } from 'share/tools/web'
-
-const tools: AgentTool[] = [
-  {
-    definition: WEB_SEARCH_TOOL,
-    execute: async (args) => {
-      const results = await webSearch(args.query as string)
-      return createWebSearchToolResult(results)
-    },
-  },
-]
+import { Agent, type AgentTool } from 'share/lib/Agent'
 
 const agent = new Agent({
   provider: 'openai',
   model: 'gpt-4o',
-  systemPrompt: 'You are a helpful assistant.',
+  systemPrompt: '...',
   maxIterations: 10,
   tools,
   initialMessages: [],
 })
 
-agent.setProvider('anthropic')
-agent.setModel('claude-opus-4-5')
-agent.setSystemPrompt('New prompt')
-agent.setMessages(savedMessages)
-
 await agent.send('Hello')
 agent.abort()
-
 agent.getMessages()
 agent.isGenerating
+agent.setProvider / setModel / setSystemPrompt / setMessages
 ```
 
 ## Shared Tools
 
-### Web
-
 ```ts
-import {
-  WEB_FETCH_TOOL,
-  WEB_SEARCH_TOOL,
-  createWebFetchToolResult,
-  createWebSearchToolResult,
-} from 'share/tools/web'
-```
-
-### Shell
-
-```ts
+// Web
+import { WEB_FETCH_TOOL, WEB_SEARCH_TOOL, createWebFetchToolResult, createWebSearchToolResult } from 'share/tools/web'
+// Shell
 import { EXEC_TOOL, getToolLabel } from 'share/tools/shell'
 import { exec } from 'share/tools/shellImpl'
-```
-
-### File System
-
-```ts
-import {
-  READ_FILE_TOOL,
-  WRITE_FILE_TOOL,
-  EDIT_FILE_TOOL,
-  LIST_DIR_TOOL,
-} from 'share/tools/fileSystem'
+// File System
+import { READ_FILE_TOOL, WRITE_FILE_TOOL, EDIT_FILE_TOOL, LIST_DIR_TOOL } from 'share/tools/fileSystem'
 ```
 
 ## Utilities
 
 ```ts
-import {
-  isDiskNodeDirectory,
-  mediaDurationFormat,
-  openImageFile,
-  fileExists,
-  resolveSavePath,
-  getFileIcon,
-} from 'share/lib/util'
-
-// Check if a DiskUsageResult node is a directory
-isDiskNodeDirectory(node, fullPath) // uses children or fstat fallback
-
-// Get file icon with built-in cache (returns data URL or undefined)
-const icon = await getFileIcon('/path/to/file')
+import { isDiskNodeDirectory, mediaDurationFormat, openImageFile, fileExists, resolveSavePath, getFileIcon } from 'share/lib/util'
 ```
+
+### Popup Window
+
+```ts
+import { openPopupWindow } from 'share/lib/popupWindow'
+
+const popup = openPopupWindow(
+  { width: 400, height: 350, minWidth: 300, minHeight: 200, alwaysOnTop: true },
+  (popup, onClose) => <MyComponent onClose={onClose} />
+)
+```
+
+Options: `width`, `height`, `minWidth?`, `minHeight?`, `alwaysOnTop?` (default true), `webviewTag?`.
 
 ## When To Update This File
 

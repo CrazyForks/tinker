@@ -35,5 +35,6 @@
   "createFile": "Create File",
   "fileNotFound": "File not found",
   "open": "Open",
-  "removeFromRecent": "Remove from Recent"
+  "removeFromRecent": "Remove from Recent",
+  "floatToday": "Float Today"
 }

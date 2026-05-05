@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { X, Folder, RefreshCw } from 'lucide-react'
+import { X, Folder, RefreshCw, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   Toolbar,
@@ -11,7 +11,9 @@ import {
 } from 'share/components/Toolbar'
 import Checkbox from 'share/components/Checkbox'
 import { tw } from 'share/theme'
+import { openPopupWindow } from 'share/lib/popupWindow'
 import store from '../store'
+import FloatTodos from './FloatTodos'
 
 export default observer(function ToolbarComponent() {
   const { t } = useTranslation()
@@ -29,6 +31,13 @@ export default observer(function ToolbarComponent() {
 
   const handleClose = () => {
     store.closeFile()
+  }
+
+  const handleFloatToday = () => {
+    openPopupWindow(
+      { width: 320, height: 300, minWidth: 240, minHeight: 150 },
+      (_popup, onClose) => <FloatTodos onClose={onClose} />
+    )
   }
 
   return (
@@ -61,6 +70,9 @@ export default observer(function ToolbarComponent() {
       </Checkbox>
 
       <div className="ml-auto">
+        <ToolbarButton onClick={handleFloatToday} title={t('floatToday')}>
+          <ExternalLink size={TOOLBAR_ICON_SIZE} />
+        </ToolbarButton>
         <ToolbarButton onClick={handleClose} title={t('close')}>
           <X size={TOOLBAR_ICON_SIZE} />
         </ToolbarButton>

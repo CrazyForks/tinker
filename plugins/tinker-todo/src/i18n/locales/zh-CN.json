@@ -35,5 +35,6 @@
   "createFile": "创建文件",
   "fileNotFound": "文件不存在",
   "open": "打开",
-  "removeFromRecent": "从最近文件中移除"
+  "removeFromRecent": "从最近文件中移除",
+  "floatToday": "浮窗显示"
 }
