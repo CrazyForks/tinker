@@ -56,8 +56,19 @@ export function openPopupWindow(
     if (e.key === 'Escape') popup.close()
   })
 
+  const unsubscribe = tinker.on('changeTheme', async () => {
+    if (popup.closed) return
+    const theme = await tinker.getTheme()
+    if (theme === 'dark') {
+      popup.document.documentElement.classList.add('dark')
+    } else {
+      popup.document.documentElement.classList.remove('dark')
+    }
+  })
+
   popup.addEventListener('beforeunload', () => {
     root.unmount()
+    unsubscribe()
   })
 
   return popup
