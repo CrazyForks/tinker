@@ -12,5 +12,16 @@
   "cancel": "取消",
   "edit": "编辑",
   "delete": "删除",
-  "inspect": "检查"
+  "inspect": "检查",
+  "openLinkInNewTab": "在新标签页中打开链接",
+  "copyLinkAddress": "复制链接地址",
+  "openImageInNewTab": "在新标签页中打开图片",
+  "copyImageAddress": "复制图片地址",
+  "saveImageAs": "图片另存为...",
+  "undo": "撤销",
+  "redo": "重做",
+  "cut": "剪切",
+  "copy": "复制",
+  "paste": "粘贴",
+  "selectAll": "全选"
 }

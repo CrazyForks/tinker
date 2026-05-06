@@ -1,5 +1,9 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import uuid from 'licia/uuid'
+import isArr from 'licia/isArr'
+import isStr from 'licia/isStr'
+import contain from 'licia/contain'
+import startWith from 'licia/startWith'
 import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
 import type { ITab } from '../common/types'
@@ -8,8 +12,10 @@ import { getAllFavicons, saveFavicon, removeFavicon } from './lib/db'
 
 const NEW_TAB_URL = ''
 const DEFAULT_SEARCH_ENGINE = 'https://www.google.com/search?q='
+const DEVTOOLS_POSITIONS = ['bottom', 'left', 'right'] as const
 
 const storage = new LocalStore('tinker-browser')
+type DevToolsPosition = (typeof DEVTOOLS_POSITIONS)[number]
 
 class Store extends BaseStore {
   tabs: ITab[] = []
@@ -24,6 +30,7 @@ class Store extends BaseStore {
 
   webviewRefs: Map<string, Electron.WebviewTag> = new Map()
   devToolsOpen = false
+  devToolsPosition: DevToolsPosition = 'bottom'
   devToolsWebviewRef: Electron.WebviewTag | null = null
 
   private nextId = 1
@@ -41,9 +48,18 @@ class Store extends BaseStore {
 
   private loadSites() {
     const saved = storage.get('sites')
-    if (Array.isArray(saved)) {
+    if (isArr(saved)) {
       this.sites = saved
     }
+
+    const savedDevToolsPosition = storage.get('devToolsPosition')
+    if (
+      isStr(savedDevToolsPosition) &&
+      contain(DEVTOOLS_POSITIONS as unknown as string[], savedDevToolsPosition)
+    ) {
+      this.devToolsPosition = savedDevToolsPosition as DevToolsPosition
+    }
+
     getAllFavicons().then((map) => {
       runInAction(() => {
         this.favicons = map
@@ -97,7 +113,7 @@ class Store extends BaseStore {
 
   private async fetchAndCacheFavicon(id: string, url: string) {
     let fullUrl = url
-    if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+    if (!startWith(fullUrl, 'http://') && !startWith(fullUrl, 'https://')) {
       fullUrl = 'https://' + fullUrl
     }
     const data = await browser.fetchFavicon(fullUrl)
@@ -185,7 +201,7 @@ class Store extends BaseStore {
     if (!url) return
 
     if (this.isValidUrl(url)) {
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      if (!startWith(url, 'http://') && !startWith(url, 'https://')) {
         url = 'https://' + url
       }
     } else {
@@ -203,10 +219,10 @@ class Store extends BaseStore {
   }
 
   private isValidUrl(str: string): boolean {
-    if (str.startsWith('http://') || str.startsWith('https://')) return true
+    if (startWith(str, 'http://') || startWith(str, 'https://')) return true
     if (str.includes(' ')) return false
     if (str.includes('.')) return true
-    if (str.startsWith('localhost')) return true
+    if (startWith(str, 'localhost')) return true
     return false
   }
 
@@ -272,6 +288,11 @@ class Store extends BaseStore {
     this.devToolsOpen = false
   }
 
+  setDevToolsPosition(position: DevToolsPosition) {
+    this.devToolsPosition = position
+    storage.set('devToolsPosition', position)
+  }
+
   toggleDevTools() {
     this.devToolsOpen = !this.devToolsOpen
   }
@@ -293,16 +314,33 @@ class Store extends BaseStore {
   connectDevTools() {
     const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
     const devWv = this.devToolsWebviewRef
-    if (wv && devWv) {
-      tinker
-        .openDevtools(wv.getWebContentsId(), devWv.getWebContentsId())
-        .then(() => {
-          if (this.pendingInspect) {
-            const { x, y } = this.pendingInspect
-            this.pendingInspect = null
-            wv.inspectElement(x, y)
-          }
-        })
+    if (!wv || !devWv) return
+
+    const doConnect = () => {
+      try {
+        tinker
+          .openDevtools(wv.getWebContentsId(), devWv.getWebContentsId())
+          .then(() => {
+            if (this.pendingInspect) {
+              const { x, y } = this.pendingInspect
+              this.pendingInspect = null
+              wv.inspectElement(x, y)
+            }
+          })
+      } catch {
+        // WebView not ready yet
+      }
+    }
+
+    try {
+      wv.getWebContentsId()
+      doConnect()
+    } catch {
+      const onDomReady = () => {
+        wv.removeEventListener('dom-ready', onDomReady)
+        doConnect()
+      }
+      wv.addEventListener('dom-ready', onDomReady)
     }
   }
 }

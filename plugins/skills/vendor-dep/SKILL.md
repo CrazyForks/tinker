@@ -1,4 +1,5 @@
 ---
+name: vendor-dep
 description: Extract a npm dependency into the shared vendor bundle
 argument-hint: <package-name> <global-camel-name> <plugin-name> [plugin-name2 ...]
 ---

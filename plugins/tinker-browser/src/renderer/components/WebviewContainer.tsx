@@ -1,19 +1,31 @@
 import { observer } from 'mobx-react-lite'
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { autorun } from 'mobx'
-import { X } from 'lucide-react'
-import { Panel, Group, useDefaultLayout } from 'react-resizable-panels'
-import { tw } from 'share/theme'
+import {
+  Panel,
+  Group,
+  Separator,
+  useDefaultLayout,
+} from 'react-resizable-panels'
+import copy from 'licia/copy'
 import store from '../store'
 import NewTabPage from './NewTabPage'
+import DevToolsPanel from './DevToolsPanel'
 import i18n from '../i18n'
 
-interface ContextMenuEvent extends Event {
-  params: { x: number; y: number }
+interface ContextMenuParams {
+  x: number
+  y: number
+  linkURL: string
+  linkText: string
+  hasImageContents: boolean
+  srcURL: string
+  isEditable: boolean
+  selectionText: string
 }
 
-interface DevToolsPanelProps {
-  onReady: (wv: Electron.WebviewTag) => void
+interface ContextMenuEvent extends Event {
+  params: ContextMenuParams
 }
 
 function createWebview(tabId: string, url: string): Electron.WebviewTag {
@@ -28,6 +40,21 @@ function createWebview(tabId: string, url: string): Electron.WebviewTag {
 
   wv.addEventListener('did-start-loading', () => {
     store.updateTabLoading(tabId, true)
+  })
+
+  wv.addEventListener('dom-ready', () => {
+    wv.executeJavaScript(`
+      document.addEventListener('contextmenu', (e) => {
+        const selection = window.getSelection();
+        if (selection && selection.isCollapsed) {
+          // Prevent right-click from selecting a word
+          const range = document.createRange();
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }, true);
+    `)
   })
 
   wv.addEventListener('did-stop-loading', () => {
@@ -63,80 +90,126 @@ function createWebview(tabId: string, url: string): Electron.WebviewTag {
 
   wv.addEventListener('context-menu', (e) => {
     const { params } = e as unknown as ContextMenuEvent
-    tinker.showContextMenu(params.x, params.y, [
-      {
-        label: i18n.t('back'),
-        click: () => store.goBack(),
-        enabled: wv.canGoBack(),
-      },
-      {
-        label: i18n.t('forward'),
-        click: () => store.goForward(),
-        enabled: wv.canGoForward(),
-      },
-      {
-        label: i18n.t('reload'),
-        click: () => store.reload(),
-      },
-      { type: 'separator' },
-      {
-        label: i18n.t('inspect'),
-        click: () => store.inspectElement(params.x, params.y),
-      },
-    ])
+    const menuItems: Parameters<typeof tinker.showContextMenu>[2] = []
+
+    if (params.linkURL) {
+      menuItems.push(
+        {
+          label: i18n.t('openLinkInNewTab'),
+          click: () => store.addTab(params.linkURL),
+        },
+        {
+          label: i18n.t('copyLinkAddress'),
+          click: () => copy(params.linkURL),
+        },
+        { type: 'separator' }
+      )
+    }
+
+    if (params.hasImageContents) {
+      menuItems.push(
+        {
+          label: i18n.t('openImageInNewTab'),
+          click: () => store.addTab(params.srcURL),
+        },
+        {
+          label: i18n.t('copyImageAddress'),
+          click: () => copy(params.srcURL),
+        },
+        {
+          label: i18n.t('saveImageAs'),
+          click: () => {
+            const a = document.createElement('a')
+            a.href = params.srcURL
+            a.download = ''
+            a.click()
+          },
+        },
+        { type: 'separator' }
+      )
+    }
+
+    if (params.isEditable) {
+      menuItems.push(
+        {
+          label: i18n.t('undo'),
+          click: () => wv.undo(),
+        },
+        {
+          label: i18n.t('redo'),
+          click: () => wv.redo(),
+        },
+        { type: 'separator' },
+        {
+          label: i18n.t('cut'),
+          click: () => wv.cut(),
+        },
+        {
+          label: i18n.t('copy'),
+          click: () => wv.copy(),
+        },
+        {
+          label: i18n.t('paste'),
+          click: () => wv.paste(),
+        },
+        {
+          label: i18n.t('selectAll'),
+          click: () => wv.selectAll(),
+        },
+        { type: 'separator' }
+      )
+    } else if (!params.isEditable && params.selectionText) {
+      menuItems.push(
+        {
+          label: i18n.t('copy'),
+          click: () => wv.copy(),
+        },
+        { type: 'separator' }
+      )
+    } else if (!params.linkURL && !params.hasImageContents) {
+      menuItems.push(
+        {
+          label: i18n.t('back'),
+          click: () => store.goBack(),
+          enabled: wv.canGoBack(),
+        },
+        {
+          label: i18n.t('forward'),
+          click: () => store.goForward(),
+          enabled: wv.canGoForward(),
+        },
+        {
+          label: i18n.t('reload'),
+          click: () => store.reload(),
+        },
+        { type: 'separator' }
+      )
+    }
+
+    menuItems.push({
+      label: i18n.t('inspect'),
+      click: () => store.inspectElement(params.x, params.y),
+    })
+
+    tinker.showContextMenu(params.x, params.y, menuItems)
   })
 
   return wv
 }
 
-function DevToolsPanel({ onReady }: DevToolsPanelProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const wv = document.createElement('webview') as Electron.WebviewTag
-    let connected = false
-    wv.src = 'about:blank'
-    wv.style.width = '100%'
-    wv.style.height = '100%'
-    container.appendChild(wv)
-
-    wv.addEventListener('dom-ready', () => {
-      if (connected) return
-      connected = true
-      onReady(wv)
-    })
-
-    return () => {
-      store.devToolsWebviewRef = null
-      container.removeChild(wv)
-    }
-  }, [onReady])
-
-  return (
-    <div className="h-full flex flex-col">
-      <div
-        className={`flex items-center justify-end px-2 py-1 ${tw.bg.secondary} ${tw.border} border-t`}
-      >
-        <button
-          className={`p-0.5 rounded ${tw.text.secondary} ${tw.hover}`}
-          onClick={() => store.closeDevTools()}
-        >
-          <X size={14} />
-        </button>
-      </div>
-      <div ref={containerRef} className="flex-1 overflow-hidden" />
-    </div>
-  )
-}
-
 export default observer(function WebviewContainer() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const panelSlotRef = useRef<HTMLDivElement>(null)
+  const [resizing, setResizing] = useState(false)
+  const orientation =
+    store.devToolsPosition === 'bottom' ? 'vertical' : 'horizontal'
+  const devToolsBefore = store.devToolsPosition === 'left'
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
-    panelIds: ['webview', 'devtools'],
-    id: 'tinker-browser-layout',
+    panelIds: devToolsBefore
+      ? ['devtools', 'webview']
+      : ['webview', 'devtools'],
+    id: `tinker-browser-layout-${store.devToolsPosition}`,
     storage: localStorage,
   })
 
@@ -181,6 +254,50 @@ export default observer(function WebviewContainer() {
     }
   }, [])
 
+  // Sync webview container position/size with the panel slot
+  useEffect(() => {
+    const container = containerRef.current
+    const slot = panelSlotRef.current
+    const wrapper = wrapperRef.current
+    if (!container || !slot || !wrapper) return
+
+    const sync = () => {
+      const wrapperRect = wrapper.getBoundingClientRect()
+      const slotRect = slot.getBoundingClientRect()
+      container.style.top = `${slotRect.top - wrapperRect.top}px`
+      container.style.left = `${slotRect.left - wrapperRect.left}px`
+      container.style.width = `${slotRect.width}px`
+      container.style.height = `${slotRect.height}px`
+    }
+
+    const ro = new ResizeObserver(sync)
+    ro.observe(slot)
+    sync()
+
+    return () => ro.disconnect()
+  }, [orientation, devToolsBefore, store.devToolsOpen])
+
+  // Listen for resize start/end on separator elements
+  useEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+
+    const onMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (target.closest('[data-separator]')) {
+        setResizing(true)
+      }
+    }
+    const onMouseUp = () => setResizing(false)
+
+    wrapper.addEventListener('mousedown', onMouseDown)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      wrapper.removeEventListener('mousedown', onMouseDown)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
+
   const handleDevToolsReady = useCallback((wv: Electron.WebviewTag) => {
     store.devToolsWebviewRef = wv
     store.connectDevTools()
@@ -189,24 +306,41 @@ export default observer(function WebviewContainer() {
   const showNewTab = store.activeTab && !store.activeTab.url
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div
+      ref={wrapperRef}
+      className="flex-1 flex flex-col overflow-hidden relative"
+    >
       <Group
-        orientation="vertical"
+        key={store.devToolsPosition}
+        orientation={orientation}
         className="h-full"
         defaultLayout={defaultLayout}
         onLayoutChange={onLayoutChange}
       >
+        {store.devToolsOpen && devToolsBefore && (
+          <Panel id="devtools" minSize={80} defaultSize={300}>
+            <DevToolsPanel onReady={handleDevToolsReady} />
+          </Panel>
+        )}
+        {store.devToolsOpen && devToolsBefore && <Separator />}
         <Panel id="webview" minSize={100}>
-          <div ref={containerRef} className="h-full relative overflow-hidden">
+          <div ref={panelSlotRef} className="h-full relative">
             {showNewTab && <NewTabPage />}
           </div>
         </Panel>
-        {store.devToolsOpen && (
+        {store.devToolsOpen && !devToolsBefore && <Separator />}
+        {store.devToolsOpen && !devToolsBefore && (
           <Panel id="devtools" minSize={80} defaultSize={300}>
             <DevToolsPanel onReady={handleDevToolsReady} />
           </Panel>
         )}
       </Group>
+      <div
+        ref={containerRef}
+        className="absolute overflow-hidden"
+        style={{ zIndex: 1, pointerEvents: showNewTab ? 'none' : 'auto' }}
+      />
+      {resizing && <div className="absolute inset-0" style={{ zIndex: 10 }} />}
     </div>
   )
 })
