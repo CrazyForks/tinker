@@ -11,7 +11,7 @@
     "build:preload": "vite build --config ../vite.preload.ts"
   },
   "tinker": {
-    "name": "System Cleaner",
+    "name": "Cleaner",
     "description": "Scan and clean system junk files to free disk space",
     "main": "dist/renderer/index.html",
     "preload": "dist/preload/index.js",

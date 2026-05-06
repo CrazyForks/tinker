@@ -255,6 +255,14 @@ TINKER integrates a rich set of high-quality built-in plugins to help you effici
       <th><img src="https://tinker.liriliri.io/downloader.png"/></th>
       <th><img src="https://tinker.liriliri.io/browser.png"/></th>
     </tr>
+    <tr>
+      <th>Float</th>
+      <th>Cleaner</th>
+    </tr>
+    <tr>
+      <th><img src="https://tinker.liriliri.io/float.png"/></th>
+      <th><img src="https://tinker.liriliri.io/cleaner.png"/></th>
+    </tr>
   </tbody>
 </table>
 
