@@ -151,17 +151,76 @@ export default observer(function Tab({
     }
   }, [])
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault()
+    tinker.showContextMenu(e.clientX, e.clientY, [
+      {
+        label: t('addTabToRight'),
+        click: () => store.addTab(undefined, tab.id),
+      },
+      { type: 'separator' },
+      {
+        label: t('reload'),
+        click: () => {
+          const wv = store.webviewRefs.get(tab.id)
+          if (wv) wv.reload()
+        },
+      },
+      {
+        label: t('duplicate'),
+        click: () => store.addTab(tab.url, tab.id),
+      },
+      {
+        label: (() => {
+          const wv = store.webviewRefs.get(tab.id)
+          return wv && wv.isAudioMuted() ? t('unmuteSite') : t('muteSite')
+        })(),
+        click: () => {
+          const wv = store.webviewRefs.get(tab.id)
+          if (wv) wv.setAudioMuted(!wv.isAudioMuted())
+        },
+      },
+      { type: 'separator' },
+      {
+        label: t('closeTab'),
+        click: () => store.closeTab(tab.id),
+      },
+      {
+        label: t('closeOtherTabs'),
+        enabled: store.tabs.length > 1,
+        click: () => {
+          const tabs = [...store.tabs]
+          tabs.forEach((t) => {
+            if (t.id !== tab.id) store.closeTab(t.id)
+          })
+        },
+      },
+      {
+        label: t('closeTabsToRight'),
+        enabled: store.tabs.indexOf(tab) < store.tabs.length - 1,
+        click: () => {
+          const index = store.tabs.indexOf(tab)
+          const tabs = [...store.tabs]
+          for (let i = tabs.length - 1; i > index; i--) {
+            store.closeTab(tabs[i].id)
+          }
+        },
+      },
+    ])
+  }
+
   return (
     <div
       ref={tabRef}
       data-tab-id={tab.id}
-      className={`group relative flex items-center h-full max-w-[240px] min-w-[72px] cursor-pointer transition-colors duration-100 select-none ${
+      className={`group relative flex items-center h-full max-w-[240px] min-w-[72px] cursor-default transition-colors duration-100 select-none ${
         isActive
           ? `${tw.bg.secondary} z-[2]`
           : `${tw.bg.tertiary} hover:bg-black/[0.06] dark:hover:bg-white/[0.08] z-[1]`
       }`}
       style={{ flex: '1 1 0', minWidth: '72px' }}
       onMouseDown={handleMouseDown}
+      onContextMenu={handleContextMenu}
     >
       {isActive ? (
         <>

@@ -129,7 +129,7 @@ class Store extends BaseStore {
     return this.tabs.find((t) => t.id === this.activeTabId)
   }
 
-  addTab(url: string = NEW_TAB_URL) {
+  addTab(url: string = NEW_TAB_URL, afterTabId?: string) {
     const id = `tab-${this.nextId++}`
     const tab: ITab = {
       id,
@@ -140,7 +140,16 @@ class Store extends BaseStore {
       canGoBack: false,
       canGoForward: false,
     }
-    this.tabs.push(tab)
+    if (afterTabId) {
+      const index = this.tabs.findIndex((t) => t.id === afterTabId)
+      if (index !== -1) {
+        this.tabs.splice(index + 1, 0, tab)
+      } else {
+        this.tabs.push(tab)
+      }
+    } else {
+      this.tabs.push(tab)
+    }
     this.activeTabId = id
     this.addressBarValue = url
   }
@@ -200,6 +209,17 @@ class Store extends BaseStore {
     let url = input.trim()
     if (!url) return
 
+    if (startWith(url, 'view-source:')) {
+      tab.url = url
+      this.addressBarValue = url
+      this.addressBarFocused = false
+      const webview = this.webviewRefs.get(tab.id)
+      if (webview) {
+        webview.loadURL(url)
+      }
+      return
+    }
+
     if (this.isValidUrl(url)) {
       if (!startWith(url, 'http://') && !startWith(url, 'https://')) {
         url = 'https://' + url
@@ -244,6 +264,12 @@ class Store extends BaseStore {
   updateTabUrl(tabId: string, url: string) {
     const tab = this.tabs.find((t) => t.id === tabId)
     if (tab) {
+      if (
+        startWith(tab.url, 'view-source:') &&
+        !startWith(url, 'view-source:')
+      ) {
+        return
+      }
       tab.url = url
       if (tab.id === this.activeTabId) {
         this.addressBarValue = url

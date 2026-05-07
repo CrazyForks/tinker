@@ -182,6 +182,27 @@ function createWebview(tabId: string, url: string): Electron.WebviewTag {
           label: i18n.t('reload'),
           click: () => store.reload(),
         },
+        { type: 'separator' },
+        {
+          label: i18n.t('saveAs'),
+          click: () => {
+            const a = document.createElement('a')
+            a.href = store.activeTab?.url || wv.getURL()
+            a.download = ''
+            a.click()
+          },
+        },
+        {
+          label: i18n.t('print'),
+          click: () => wv.print(),
+        },
+        {
+          label: i18n.t('viewPageSource'),
+          click: () => {
+            const url = store.activeTab?.url || wv.getURL()
+            store.addTab(`view-source:${url}`)
+          },
+        },
         { type: 'separator' }
       )
     }
