@@ -81,7 +81,7 @@ export type IpcShowPluginNotification = (body: string) => void
 export type IpcInstallPlugin = (name: string) => Promise<void>
 export type IpcUninstallPlugin = (name: string) => Promise<void>
 export type IpcCheckPluginUpdate = (id: string) => Promise<string | null>
-export type IpcShowPluginDevTools = (
+export type IpcShowDevTools = (
   srcWebContentsId: number,
   devtoolsWebContentsId: number
 ) => Promise<void>

@@ -3,7 +3,7 @@ import { handleEvent } from 'share/main/lib/util'
 import path from 'path'
 import fs from 'fs-extra'
 import startWith from 'licia/startWith'
-import { ipcMain, Notification, session, webContents } from 'electron'
+import { ipcMain, Notification, session } from 'electron'
 import { getClipboardFilePaths } from '../clipboard'
 import { captureScreen } from '../screen'
 import { getFileIcon as getFileIconBuffer } from '../fileIcon'
@@ -18,7 +18,8 @@ import {
   loadSettingsPlugin,
 } from './loader'
 import * as pluginDownload from './download'
-import { installPlugin, uninstallPlugin, checkPluginUpdate } from './installer'
+import * as pluginWebview from './webview'
+import * as pluginInstaller from './installer'
 import {
   PLUGIN_PARTITION,
   pluginViews,
@@ -73,6 +74,8 @@ function nodeStreamToWeb(
 
 export function init() {
   pluginDownload.init()
+  pluginInstaller.init()
+  pluginWebview.init()
   handleEvent('getPlugins', getPlugins)
   handleEvent('openPlugin', openPlugin)
   handleEvent('reopenPlugin', reopenPlugin)
@@ -86,46 +89,8 @@ export function init() {
   handleEvent('clearPluginData', clearPluginData)
   handleEvent('preparePluginView', preparePluginView)
   handleEvent('isPluginRunning', isPluginRunning)
-  handleEvent('installPlugin', installPlugin)
-  handleEvent('uninstallPlugin', uninstallPlugin)
-  handleEvent('checkPluginUpdate', checkPluginUpdate)
   handleEvent('captureScreen', captureScreen)
   handleEvent('pluginGetFileIcon', getFileIcon)
-  handleEvent(
-    'showPluginDevTools',
-    (srcWebContentsId: number, devtoolsWebContentsId: number) => {
-      const src = webContents.fromId(srcWebContentsId)
-      const devtools = webContents.fromId(devtoolsWebContentsId)
-      if (src && devtools) {
-        src.setDevToolsWebContents(devtools)
-        src.openDevTools()
-        devtools.executeJavaScript('window.location.reload()')
-      }
-    }
-  )
-  handleEvent(
-    'sendDebuggerCommand',
-    async (
-      webContentsId: number,
-      method: string,
-      params?: Record<string, unknown>
-    ) => {
-      const wc = webContents.fromId(webContentsId)
-      if (!wc) throw new Error('WebContents not found')
-      if (!wc.debugger.isAttached()) {
-        wc.debugger.attach('1.3')
-        wc.once('destroyed', () => {
-          try {
-            wc.debugger.detach()
-          } catch {
-            // already detached
-          }
-        })
-      }
-      const result = await wc.debugger.sendCommand(method, params)
-      return result
-    }
-  )
   ipcMain.handle('showPluginNotification', (event, body: string) => {
     if (!Notification.isSupported()) {
       return
