@@ -92,7 +92,7 @@ export function init() {
   handleEvent('captureScreen', captureScreen)
   handleEvent('pluginGetFileIcon', getFileIcon)
   handleEvent(
-    'openPluginDevtools',
+    'showPluginDevTools',
     (srcWebContentsId: number, devtoolsWebContentsId: number) => {
       const src = webContents.fromId(srcWebContentsId)
       const devtools = webContents.fromId(devtoolsWebContentsId)
@@ -101,6 +101,29 @@ export function init() {
         src.openDevTools()
         devtools.executeJavaScript('window.location.reload()')
       }
+    }
+  )
+  handleEvent(
+    'sendDebuggerCommand',
+    async (
+      webContentsId: number,
+      method: string,
+      params?: Record<string, unknown>
+    ) => {
+      const wc = webContents.fromId(webContentsId)
+      if (!wc) throw new Error('WebContents not found')
+      if (!wc.debugger.isAttached()) {
+        wc.debugger.attach('1.3')
+        wc.once('destroyed', () => {
+          try {
+            wc.debugger.detach()
+          } catch {
+            // already detached
+          }
+        })
+      }
+      const result = await wc.debugger.sendCommand(method, params)
+      return result
     }
   )
   ipcMain.handle('showPluginNotification', (event, body: string) => {
