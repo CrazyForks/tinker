@@ -102,15 +102,14 @@ function setupWindowOpenHandler(view: WebContentsView) {
     })
   })
 
-  // Forward ESC key presses to the main window so plugin views can be closed via keyboard
   view.webContents.on('before-input-event', (_event, input) => {
     if (input.type !== 'keyDown') {
       return
     }
 
     if (input.key === 'Escape') {
-      const mainWin = window.getWin('main')
-      if (mainWin) {
+      const win = BrowserWindow.fromWebContents(view.webContents)
+      if (win === window.getWin('main')) {
         window.sendTo('main', 'pressEsc')
       }
     }
@@ -251,7 +250,6 @@ export const closePlugin: IpcClosePlugin = async function (id, destroy) {
 
   if (win) {
     win.contentView.removeChildView(view)
-    // Restore focus to the main window after removing the plugin view
     if (win === window.getWin('main')) {
       win.webContents.focus()
     }
