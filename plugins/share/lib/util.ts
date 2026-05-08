@@ -2,6 +2,13 @@ import durationFormat from 'licia/durationFormat'
 import dateFormat from 'licia/dateFormat'
 import splitPath from 'licia/splitPath'
 import contain from 'licia/contain'
+import isWindows from 'licia/isWindows'
+
+const sep = isWindows ? '\\' : '/'
+
+export function joinPath(...parts: string[]): string {
+  return parts.filter(Boolean).join(sep)
+}
 
 /**
  * Open an image file using native dialog and return File with path

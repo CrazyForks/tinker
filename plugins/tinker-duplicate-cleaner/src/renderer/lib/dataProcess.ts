@@ -1,5 +1,6 @@
 import type { FileEntry, DuplicateGroup } from '../../common/types'
 import fileSize from 'licia/fileSize'
+import { joinPath } from 'share/lib/util'
 
 const MIN_SIZE = fileSize('1M')
 
@@ -8,7 +9,7 @@ function collectFiles(
   parentPath: string,
   result: FileEntry[]
 ): void {
-  const path = parentPath ? `${parentPath}/${node.name}` : node.name
+  const path = joinPath(parentPath, node.name)
 
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
