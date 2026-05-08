@@ -1,0 +1,13 @@
+{
+  "searchPlaceholder": "搜索文件...",
+  "searching": "搜索中...",
+  "resultCount": "{{count}} 个结果",
+  "loadMore": "加载更多",
+  "fileName": "名称",
+  "filePath": "路径",
+  "fileSize": "大小",
+  "dateModified": "修改时间",
+  "noResults": "输入关键字搜索文件",
+  "showInFolder": "在文件夹中显示",
+  "copyPath": "复制路径"
+}

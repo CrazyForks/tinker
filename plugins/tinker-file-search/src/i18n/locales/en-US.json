@@ -1,0 +1,13 @@
+{
+  "searchPlaceholder": "Search files...",
+  "searching": "Searching...",
+  "resultCount": "{{count}} results",
+  "loadMore": "Load More",
+  "fileName": "Name",
+  "filePath": "Path",
+  "fileSize": "Size",
+  "dateModified": "Modified",
+  "noResults": "Enter a query to search files",
+  "showInFolder": "Show in Folder",
+  "copyPath": "Copy Path"
+}

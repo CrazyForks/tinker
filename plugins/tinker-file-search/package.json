@@ -1,0 +1,21 @@
+{
+  "name": "tinker-file-search",
+  "version": "0.1.0",
+  "description": "File Search Plugin for TINKER",
+  "scripts": {
+    "dev": "vite --config ../vite.config.ts",
+    "build": "vite build --config ../vite.config.ts"
+  },
+  "tinker": {
+    "name": "File Search",
+    "description": "Quick local file search",
+    "main": "dist/index.html",
+    "icon": "icon.png",
+    "locales": {
+      "zh-CN": {
+        "name": "文件搜索",
+        "description": "快速本地文件搜索"
+      }
+    }
+  }
+}
