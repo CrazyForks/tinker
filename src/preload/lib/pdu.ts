@@ -1,10 +1,8 @@
 import { spawn, ChildProcess } from 'child_process'
-import path from 'path'
-import contain from 'licia/contain'
 import isWindows from 'licia/isWindows'
 import uuid from 'licia/uuid'
 import toNum from 'licia/toNum'
-import { isDev } from 'share/common/util'
+import { resolveResources } from './util'
 
 export interface DiskUsageOptions {
   paths: string[]
@@ -36,17 +34,7 @@ type ProgressCallback = (progress: DiskUsageProgress) => void
 
 function getPduPath(): string {
   const name = isWindows ? 'pdu.exe' : 'pdu'
-
-  if (isDev()) {
-    return path.resolve(__dirname, '../../', `resources/${name}`)
-  }
-
-  const ret = path.resolve(__dirname, '../', `resources/${name}`)
-  if (contain(ret, 'app.asar')) {
-    return path.resolve(process.resourcesPath, name)
-  }
-
-  return ret
+  return resolveResources(name)
 }
 
 const regProgress = /\(scanned (\d+), total (\d+)(?:, erred (\d+))?\)/

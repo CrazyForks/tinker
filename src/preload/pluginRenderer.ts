@@ -177,6 +177,7 @@ export function injectApi() {
     callAI: _tinker.callAI,
     callAIStream,
     getAIProviders: _tinker.getProviderList,
+    searchFile: _tinker.searchFile,
     download,
     getDownloads,
   }

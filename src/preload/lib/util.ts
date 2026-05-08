@@ -1,6 +1,9 @@
 import AdmZip from 'adm-zip'
+import path from 'path'
+import contain from 'licia/contain'
 import types from 'licia/types'
 import each from 'licia/each'
+import { isDev } from 'share/common/util'
 
 export function injectRendererScript(str: string) {
   const script = document.createElement('script')
@@ -42,4 +45,17 @@ export function unzipFiles(buf: Buffer): types.PlainObj<string | Uint8Array> {
     }
   })
   return files
+}
+
+export function resolveResources(name: string): string {
+  if (isDev()) {
+    return path.resolve(__dirname, '../../', `resources/${name}`)
+  }
+
+  const ret = path.resolve(__dirname, '../', `resources/${name}`)
+  if (contain(ret, 'app.asar')) {
+    return path.resolve(process.resourcesPath, name)
+  }
+
+  return ret
 }

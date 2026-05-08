@@ -12,6 +12,15 @@ if (isWindows) {
   await $`curl -Lk ${screenCaptureUrl} > ${dir}/ScreenCapture.exe`
 }
 
+const everythingUrl =
+  'https://raw.githubusercontent.com/liriliri/electron-resources/master/everything/everything-x64.zip'
+
+if (isWindows) {
+  await $`curl -Lk ${everythingUrl} > ${dir}/everything-x64.zip`
+  await $`unzip -o ${dir}/everything-x64.zip -d ${dir}/everything`
+  await $`rm ${dir}/everything-x64.zip`
+}
+
 const pduVersion = '0.21.1'
 let pduFile
 let pduOutput = 'pdu'

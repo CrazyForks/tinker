@@ -234,6 +234,22 @@ declare global {
       onProgress(callback: () => void): () => void
     }
 
+    interface SearchFileResult {
+      /** Full file path */
+      path: string
+      /** File size in bytes */
+      size: number
+      /** Last modification time as Unix timestamp (ms) */
+      dateModified: number
+    }
+
+    interface SearchFileOptions {
+      /** Pagination offset (default: 0) */
+      offset?: number
+      /** Maximum number of results (default: 50) */
+      maxResults?: number
+    }
+
     interface WebviewTag extends Electron.WebviewTag {
       sendCommand(
         method: string,
@@ -437,6 +453,20 @@ declare global {
      * Completed/cancelled downloads have no-op control methods and are already resolved/rejected.
      */
     getDownloads(): Promise<tinker.DownloadTask[]>
+
+    /**
+     * Search files on the system.
+     * Uses Everything on Windows. Returns empty array on other platforms.
+     * @param query - Search query string
+     * @param options - Optional pagination options
+     * @example
+     * const results = await tinker.searchFile('*.pdf')
+     * const more = await tinker.searchFile('report', { offset: 50, maxResults: 100 })
+     */
+    searchFile(
+      query: string,
+      options?: tinker.SearchFileOptions
+    ): Promise<tinker.SearchFileResult[]>
   }
 }
 
