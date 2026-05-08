@@ -2,6 +2,18 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - windows
+          - macos
+          - macos-intel
+          - linux
 
 jobs:
   build:
@@ -10,7 +22,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-2022, macos-latest, macos-15-intel, ubuntu-latest]
+        os: ${{ fromJSON(
+          github.event.inputs.platform == 'all' && '["windows-2022","macos-latest","macos-15-intel","ubuntu-latest"]' ||
+          github.event.inputs.platform == 'windows' && '["windows-2022"]' ||
+          github.event.inputs.platform == 'macos' && '["macos-latest"]' ||
+          github.event.inputs.platform == 'macos-intel' && '["macos-15-intel"]' ||
+          github.event.inputs.platform == 'linux' && '["ubuntu-latest"]' ||
+          '["windows-2022","macos-latest","macos-15-intel","ubuntu-latest"]'
+          ) }}
 
     steps:
     - uses: actions/checkout@v5
