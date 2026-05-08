@@ -1,5 +1,5 @@
 import type { DiskItem } from '../types'
-import { isDiskNodeDirectory } from 'share/lib/util'
+import { isDiskNodeDirectory, joinPath } from 'share/lib/util'
 
 export async function buildDiskData(
   raw: tinker.DiskUsageResult
@@ -8,7 +8,7 @@ export async function buildDiskData(
     node: tinker.DiskUsageResult,
     parentId: string
   ): Promise<DiskItem> {
-    const id = parentId ? `${parentId}/${node.name}` : node.name
+    const id = joinPath(parentId, node.name)
     const isDirectory = await isDiskNodeDirectory(node, id)
 
     const item: DiskItem = {
@@ -39,6 +39,23 @@ export function findBranch(id: string, data: DiskItem): DiskItem | undefined {
       if (found) return found
     }
   }
+  return undefined
+}
+
+export function findParentId(id: string, data: DiskItem): string | undefined {
+  if (!data.children) return undefined
+
+  for (const child of data.children) {
+    if (child.id === id) {
+      return data.id
+    }
+
+    const found = findParentId(id, child)
+    if (found !== undefined) {
+      return found
+    }
+  }
+
   return undefined
 }
 

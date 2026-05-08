@@ -1,6 +1,6 @@
 import fileSize from 'licia/fileSize'
 import type { FileEntry } from '../types'
-import { isDiskNodeDirectory } from 'share/lib/util'
+import { isDiskNodeDirectory, joinPath } from 'share/lib/util'
 
 const MIN_SIZE = fileSize('10M')
 
@@ -9,7 +9,7 @@ async function collectFiles(
   parentPath: string,
   result: FileEntry[]
 ): Promise<void> {
-  const path = parentPath ? `${parentPath}/${node.name}` : node.name
+  const path = joinPath(parentPath, node.name)
 
   if (await isDiskNodeDirectory(node, path)) {
     if (node.children) {

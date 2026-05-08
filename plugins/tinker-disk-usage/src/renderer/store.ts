@@ -6,6 +6,7 @@ import {
   buildDiskData,
   collectUnloadedLeafDirs,
   findBranch,
+  findParentId,
   mergeBranch,
   removeNodes,
 } from './lib/dataProcess'
@@ -154,10 +155,9 @@ class Store extends BaseStore {
   async navigateUp() {
     if (!this.canGoUp || !this.diskData) return
     const current = findBranch(this.navigatePath, this.diskData)
-    let parentPath =
-      !current || current.id === this.diskData.id
-        ? ''
-        : this.navigatePath.split('/').slice(0, -1).join('/')
+    let parentPath = !current
+      ? ''
+      : findParentId(current.id, this.diskData) || ''
     if (parentPath === this.diskData.id) {
       parentPath = ''
     }

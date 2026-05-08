@@ -1,5 +1,6 @@
 import durationFormat from 'licia/durationFormat'
 import dateFormat from 'licia/dateFormat'
+import compact from 'licia/compact'
 import splitPath from 'licia/splitPath'
 import contain from 'licia/contain'
 import isWindows from 'licia/isWindows'
@@ -7,7 +8,7 @@ import isWindows from 'licia/isWindows'
 const sep = isWindows ? '\\' : '/'
 
 export function joinPath(...parts: string[]): string {
-  return parts.filter(Boolean).join(sep)
+  return compact(parts).join(sep)
 }
 
 /**
