@@ -1,4 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx'
+import debounce from 'licia/debounce'
 import BaseStore from 'share/BaseStore'
 import { getFileIcon } from 'share/lib/util'
 import type { FileResult } from './types'
@@ -12,7 +13,7 @@ class Store extends BaseStore {
   hasMore = false
   iconCache: Map<string, string> = new Map()
 
-  private searchTimer: ReturnType<typeof setTimeout> | null = null
+  private debounceSearch = debounce(() => this.search(), 300)
 
   constructor() {
     super()
@@ -22,15 +23,6 @@ class Store extends BaseStore {
   setQuery(query: string) {
     this.query = query
     this.debounceSearch()
-  }
-
-  private debounceSearch() {
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer)
-    }
-    this.searchTimer = setTimeout(() => {
-      this.search()
-    }, 300)
   }
 
   async search() {
@@ -102,6 +94,17 @@ class Store extends BaseStore {
 
   copyPath(filePath: string) {
     navigator.clipboard.writeText(filePath)
+  }
+
+  async deleteFile(filePath: string) {
+    try {
+      await fileSearch.deleteFile(filePath)
+      runInAction(() => {
+        this.results = this.results.filter((r) => r.path !== filePath)
+      })
+    } catch {
+      // ignore
+    }
   }
 }
 

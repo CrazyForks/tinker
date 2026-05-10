@@ -6,6 +6,7 @@ import type {
   ICellRendererParams,
   RowDoubleClickedEvent,
   CellContextMenuEvent,
+  BodyScrollEndEvent,
 } from 'ag-grid-community'
 import fileSize from 'licia/fileSize'
 import dateFormat from 'licia/dateFormat'
@@ -44,8 +45,17 @@ const PathCell = ({ data }: ICellRendererParams<FileResult>) => {
 
   const dir = data.path.replace(/[\\/][^\\/]+$/, '')
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    store.showInFolder(data.path)
+  }
+
   return (
-    <span className="truncate" title={data.path}>
+    <span
+      className="truncate cursor-pointer hover:underline"
+      onClick={handleClick}
+      title={data.path}
+    >
       {dir}
     </span>
   )
@@ -124,9 +134,27 @@ export default observer(function ResultView() {
           label: t('copyPath'),
           click: () => store.copyPath(filePath),
         },
+        { type: 'separator' },
+        {
+          label: t('moveToTrash'),
+          click: () => store.deleteFile(filePath),
+        },
       ])
     },
     [t]
+  )
+
+  const onBodyScrollEnd = useCallback(
+    (event: BodyScrollEndEvent<FileResult>) => {
+      if (!store.hasMore || store.searching) return
+
+      const { top, bottom } = event.api.getVerticalPixelRange()
+      const totalHeight = event.api.getDisplayedRowCount() * 40
+      if (bottom >= totalHeight - (bottom - top) / 2) {
+        store.loadMore()
+      }
+    },
+    []
   )
 
   return (
@@ -138,6 +166,7 @@ export default observer(function ResultView() {
         getRowId={getRowId}
         onRowDoubleClicked={onRowDoubleClicked}
         onCellContextMenu={onCellContextMenu}
+        onBodyScrollEnd={onBodyScrollEnd}
         enableCellTextSelection={true}
         suppressCellFocus={true}
         overlayNoRowsTemplate={`<span>${t('noResults')}</span>`}
