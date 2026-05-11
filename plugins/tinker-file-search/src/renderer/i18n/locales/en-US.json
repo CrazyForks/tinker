@@ -14,5 +14,11 @@
   "cancel": "Cancel",
   "confirm": "Confirm",
   "deleteSuccess": "File deleted successfully",
-  "deleteError": "Failed to delete file"
+  "deleteError": "Failed to delete file",
+  "preview": "Preview",
+  "noFileSelected": "Select a file to preview",
+  "name": "Name:",
+  "path": "Path:",
+  "size": "Size:",
+  "modified": "Modified:"
 }

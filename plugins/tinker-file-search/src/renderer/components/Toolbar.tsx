@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
 import { Toolbar, ToolbarSearch, ToolbarSpacer } from 'share/components/Toolbar'
 import { LoadingCircle } from 'share/components/Loading'
+import Checkbox from 'share/components/Checkbox'
 import store from '../store'
 
 export default observer(function ToolbarComponent() {
@@ -16,6 +17,12 @@ export default observer(function ToolbarComponent() {
       />
       {store.searching && <LoadingCircle className="w-5 h-5 ml-1" />}
       <ToolbarSpacer />
+      <Checkbox
+        checked={store.showPreview}
+        onChange={(checked) => store.setShowPreview(checked)}
+      >
+        {t('preview')}
+      </Checkbox>
     </Toolbar>
   )
 })

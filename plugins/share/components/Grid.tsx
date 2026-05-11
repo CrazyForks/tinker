@@ -12,6 +12,7 @@ ModuleRegistry.registerModules([AllCommunityModule])
 const GRID_DEFAULTS = {
   headerHeight: 40,
   rowHeight: 40,
+  alwaysShowVerticalScroll: true,
 }
 
 interface GridProps<TData> extends AgGridReactProps<TData> {

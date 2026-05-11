@@ -16,6 +16,8 @@ class Store extends BaseStore {
   iconCache: Map<string, string> = new Map()
   moveToTrash: boolean = localStore.get('moveToTrash') !== false
   pendingDeletePath: string | null = null
+  showPreview: boolean = localStore.get('showPreview') === true
+  selectedFile: FileResult | null = null
 
   private debounceSearch = debounce(() => this.search(), 300)
   private currentTask: tinker.SearchFileTask | null = null
@@ -128,6 +130,15 @@ class Store extends BaseStore {
 
   requestDelete(filePath: string) {
     this.pendingDeletePath = filePath
+  }
+
+  setShowPreview(value: boolean) {
+    this.showPreview = value
+    localStore.set('showPreview', value)
+  }
+
+  setSelectedFile(file: FileResult | null) {
+    this.selectedFile = file
   }
 
   cancelDelete() {
