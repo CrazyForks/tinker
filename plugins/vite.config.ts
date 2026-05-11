@@ -43,7 +43,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
     },
     optimizeDeps: {
       include: ['shiki'],
-      exclude: shareDeps,
+      exclude: shareDeps.map((d) => (d.endsWith('/') ? d.slice(0, -1) : d)),
     },
   }
 })

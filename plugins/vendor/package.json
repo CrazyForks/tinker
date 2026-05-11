@@ -1,7 +1,7 @@
 {
   "name": "plugin-vendor",
   "scripts": {
-    "build": "npm run build:tailwind && npm run build:react && npm run build:mobx && npm run build:mathjs && npm run build:idb && npm run build:monaco && npm run build:aggrid && npm run build:lucide && npm run build:htmltoimage && npm run build:wavesurfer && npm run build:zxing && npm run build:resizablepanels && npm run build:syntaxhighlighter && npm run build:markdown && npm run build:hexeditor && npm run build:headlessui && npm run build:hottoast && npm run build:tiptap && npm run build:videojs",
+    "build": "npm run build:tailwind && npm run build:react && npm run build:mobx && npm run build:mathjs && npm run build:idb && npm run build:monaco && npm run build:aggrid && npm run build:lucide && npm run build:licia && npm run build:htmltoimage && npm run build:wavesurfer && npm run build:zxing && npm run build:resizablepanels && npm run build:syntaxhighlighter && npm run build:markdown && npm run build:hexeditor && npm run build:headlessui && npm run build:hottoast && npm run build:tiptap && npm run build:videojs",
     "build:tailwind": "node tailwind.js",
     "build:react": "vite build --config vite.config.ts --mode react",
     "build:mobx": "vite build --config vite.config.ts --mode mobx",
@@ -10,6 +10,7 @@
     "build:monaco": "vite build --config vite.config.ts --mode monaco",
     "build:aggrid": "vite build --config vite.config.ts --mode aggrid",
     "build:lucide": "vite build --config vite.config.ts --mode lucide",
+    "build:licia": "vite build --config vite.config.ts --mode licia",
     "build:htmltoimage": "vite build --config vite.config.ts --mode htmltoimage",
     "build:wavesurfer": "vite build --config vite.config.ts --mode wavesurfer",
     "build:zxing": "vite build --config vite.config.ts --mode zxing",

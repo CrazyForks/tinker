@@ -8,7 +8,7 @@ import keys from 'licia/keys'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
 
-const globals = {
+const globals: Record<string, string> = {
   react: 'React',
   'react-dom': 'ReactDOM',
   'react-dom/client': 'ReactDOMClient',
@@ -25,6 +25,7 @@ const globals = {
   'ag-grid-community': 'AgGridCommunity',
   'ag-grid-react': 'AgGridReact',
   'lucide-react': 'lucideReact',
+  'licia/': 'licia',
   '@zxing/library': 'zxing',
   'html-to-image': 'htmlToImage',
   'react-syntax-highlighter': 'reactSyntaxHighlighter',
@@ -65,13 +66,27 @@ export function globalsExternalPlugin(): Plugin {
   return {
     name: 'plugin-globals-external',
     enforce: 'pre' as const,
-    resolveId(source: string) {
+    resolveId(source: string, importer: string | undefined) {
+      if (importer && /\.worker\.[jt]sx?$/.test(importer)) return null
+
       if (globals[source]) {
         return source
+      }
+      for (const key of Object.keys(globals)) {
+        if (key.endsWith('/') && source.startsWith(key)) return source
       }
       return null
     },
     load(id: string) {
+      for (const [key, globalName] of Object.entries(globals)) {
+        if (key.endsWith('/') && id.startsWith(key)) {
+          const mod = id.slice(key.length)
+          return `const m = globalThis.${globalName}[${JSON.stringify(
+            mod
+          )}];\nexport default m;`
+        }
+      }
+
       const globalName = globals[id]
       if (!globalName) return null
 
@@ -176,6 +191,10 @@ export default defineConfig(({ mode }) => {
 
   if (target === 'lucide') {
     return createConfig('lucide', 'PluginVendorLucide', ['react'])
+  }
+
+  if (target === 'licia') {
+    return createConfig('licia', 'PluginVendorLicia')
   }
 
   if (target === 'htmltoimage') {
