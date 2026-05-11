@@ -25,7 +25,7 @@ class Store extends BaseStore {
   }
 
   private loadState() {
-    const saved = storage.get(STORAGE_KEY) as StoredState | null
+    const saved = storage.get<StoredState | null>(STORAGE_KEY)
     if (saved) {
       this.input = saved.input || ''
       this.language = saved.language || 'javascript'

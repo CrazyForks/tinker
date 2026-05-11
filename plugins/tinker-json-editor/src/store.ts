@@ -46,7 +46,7 @@ class Store extends BaseStore {
   }
 
   private async loadSavedFile() {
-    const savedFilePath = storage.get(FILE_PATH_KEY)
+    const savedFilePath = storage.get<string | undefined>(FILE_PATH_KEY)
 
     if (savedFilePath) {
       try {
@@ -104,14 +104,14 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const savedContent = storage.get(STORAGE_KEY)
-    const savedMode = storage.get(MODE_STORAGE_KEY)
+    const savedContent = storage.get<string | undefined>(STORAGE_KEY)
+    const savedMode = storage.get<EditorMode | undefined>(MODE_STORAGE_KEY)
 
     if (savedContent) {
       this.jsonInput = savedContent
     }
     if (savedMode) {
-      this.mode = savedMode as EditorMode
+      this.mode = savedMode
     }
   }
 

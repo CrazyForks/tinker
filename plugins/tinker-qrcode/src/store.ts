@@ -39,7 +39,7 @@ class Store extends BaseStore {
   }
 
   loadStorage() {
-    const savedSize = storage.get(STORAGE_KEY_SIZE)
+    const savedSize = storage.get<string | number | undefined>(STORAGE_KEY_SIZE)
     if (savedSize) {
       const size = Number(savedSize)
       if (!isNaN(size) && size >= 100 && size <= 2000) {
@@ -47,26 +47,30 @@ class Store extends BaseStore {
       }
     }
 
-    const savedIsCustomSize = storage.get(STORAGE_KEY_IS_CUSTOM_SIZE)
-    if (savedIsCustomSize !== null) {
+    const savedIsCustomSize = storage.get<string | undefined>(
+      STORAGE_KEY_IS_CUSTOM_SIZE
+    )
+    if (savedIsCustomSize !== undefined) {
       this.isCustomSize = savedIsCustomSize === 'true'
     } else {
       this.isCustomSize = !PRESET_SIZES.includes(this.size)
     }
 
-    const savedFgColor = storage.get(STORAGE_KEY_FG_COLOR)
+    const savedFgColor = storage.get<string | undefined>(STORAGE_KEY_FG_COLOR)
     if (savedFgColor) {
       this.fgColor = savedFgColor
     }
 
-    const savedBgColor = storage.get(STORAGE_KEY_BG_COLOR)
+    const savedBgColor = storage.get<string | undefined>(STORAGE_KEY_BG_COLOR)
     if (savedBgColor) {
       this.bgColor = savedBgColor
     }
 
-    const savedCorrectLevel = storage.get(STORAGE_KEY_CORRECT_LEVEL)
+    const savedCorrectLevel = storage.get<Store['correctLevel'] | undefined>(
+      STORAGE_KEY_CORRECT_LEVEL
+    )
     if (savedCorrectLevel && ['L', 'M', 'Q', 'H'].includes(savedCorrectLevel)) {
-      this.correctLevel = savedCorrectLevel as 'L' | 'M' | 'Q' | 'H'
+      this.correctLevel = savedCorrectLevel
     }
   }
 

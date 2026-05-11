@@ -42,7 +42,7 @@ class Store extends BaseStore {
   }
 
   private async init() {
-    const passwordHash = storage.get('passwordHash') as string | undefined
+    const passwordHash = storage.get<string | undefined>('passwordHash')
     runInAction(() => {
       this.hasPassword = !!passwordHash
       this.isLocked = !!passwordHash
@@ -61,7 +61,7 @@ class Store extends BaseStore {
 
   /** Load accounts - decrypts secrets if a session password is set */
   private async loadAccounts() {
-    const stored = storage.get('accounts') as Account[] | undefined
+    const stored = storage.get<Account[] | undefined>('accounts')
     if (!stored || !Array.isArray(stored)) return
 
     if (this.sessionPassword) {
@@ -235,7 +235,7 @@ class Store extends BaseStore {
    * Returns true on success, false on wrong password.
    */
   async unlock(password: string): Promise<boolean> {
-    const hash = storage.get('passwordHash') as string | undefined
+    const hash = storage.get<string | undefined>('passwordHash')
     if (!hash) return true
 
     const ok = await verifyPassword(password, hash)
@@ -289,7 +289,7 @@ class Store extends BaseStore {
     oldPassword: string,
     newPassword: string
   ): Promise<boolean> {
-    const hash = storage.get('passwordHash') as string | undefined
+    const hash = storage.get<string | undefined>('passwordHash')
     if (!hash) return false
 
     const ok = await verifyPassword(oldPassword, hash)
@@ -305,7 +305,7 @@ class Store extends BaseStore {
    * Returns false if password is wrong.
    */
   async removePassword(password: string): Promise<boolean> {
-    const hash = storage.get('passwordHash') as string | undefined
+    const hash = storage.get<string | undefined>('passwordHash')
     if (!hash) return true
 
     const ok = await verifyPassword(password, hash)

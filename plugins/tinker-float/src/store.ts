@@ -42,9 +42,9 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const width = storage.get('windowWidth') as number | undefined
-    const height = storage.get('windowHeight') as number | undefined
-    const alwaysOnTop = storage.get('alwaysOnTop') as boolean | undefined
+    const width = storage.get<number | undefined>('windowWidth')
+    const height = storage.get<number | undefined>('windowHeight')
+    const alwaysOnTop = storage.get<boolean | undefined>('alwaysOnTop')
     if (width != null) this.windowWidth = width
     if (height != null) this.windowHeight = height
     if (alwaysOnTop != null) this.alwaysOnTop = alwaysOnTop

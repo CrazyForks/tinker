@@ -52,12 +52,14 @@ class Store extends BaseStore {
       this.sites = saved
     }
 
-    const savedDevToolsPosition = storage.get('devToolsPosition')
+    const savedDevToolsPosition = storage.get<DevToolsPosition | undefined>(
+      'devToolsPosition'
+    )
     if (
       isStr(savedDevToolsPosition) &&
-      contain(DEVTOOLS_POSITIONS as unknown as string[], savedDevToolsPosition)
+      contain(DEVTOOLS_POSITIONS, savedDevToolsPosition)
     ) {
-      this.devToolsPosition = savedDevToolsPosition as DevToolsPosition
+      this.devToolsPosition = savedDevToolsPosition
     }
 
     getAllFavicons().then((map) => {

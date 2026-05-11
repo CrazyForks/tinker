@@ -4,8 +4,7 @@ import dataUrl from 'licia/dataUrl'
 
 export function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer)
-  const byteArray = Array.from(bytes)
-  return base64.encode(byteArray)
+  return base64.encode(bytes)
 }
 
 export function base64ToUint8Array(base64Str: string): Uint8Array {

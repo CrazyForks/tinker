@@ -516,8 +516,12 @@ class Store extends BaseStore {
   }
 
   private loadColorsFromStorage() {
-    const savedForeground = storage.get(STORAGE_FOREGROUND_KEY)
-    const savedBackground = storage.get(STORAGE_BACKGROUND_KEY)
+    const savedForeground = storage.get<string | undefined>(
+      STORAGE_FOREGROUND_KEY
+    )
+    const savedBackground = storage.get<string | undefined>(
+      STORAGE_BACKGROUND_KEY
+    )
 
     if (savedForeground) {
       this.foregroundColor = savedForeground
@@ -528,37 +532,47 @@ class Store extends BaseStore {
   }
 
   private loadToolFromStorage() {
-    const savedTool = storage.get(STORAGE_TOOL_KEY)
+    const savedTool = storage.get<ToolType | undefined>(STORAGE_TOOL_KEY)
     if (savedTool) {
-      this.tool = savedTool as ToolType
+      this.tool = savedTool
     }
   }
 
   private loadShapeTypeFromStorage() {
-    const savedShapeType = storage.get(STORAGE_SHAPE_TYPE_KEY)
+    const savedShapeType = storage.get<ShapeType | undefined>(
+      STORAGE_SHAPE_TYPE_KEY
+    )
     if (savedShapeType) {
-      this.shapeType = savedShapeType as ShapeType
+      this.shapeType = savedShapeType
     }
   }
 
   private loadStrokeWidthFromStorage() {
-    const savedStrokeWidth = storage.get(STORAGE_STROKE_WIDTH_KEY)
+    const savedStrokeWidth = storage.get<number | undefined>(
+      STORAGE_STROKE_WIDTH_KEY
+    )
     if (typeof savedStrokeWidth === 'number') {
       this.strokeWidth = savedStrokeWidth
     }
   }
 
   private loadFontSizeFromStorage() {
-    const savedFontSize = storage.get(STORAGE_FONT_SIZE_KEY)
+    const savedFontSize = storage.get<number | undefined>(STORAGE_FONT_SIZE_KEY)
     if (typeof savedFontSize === 'number') {
       this.fontSize = savedFontSize
     }
   }
 
   private loadWatermarkFromStorage() {
-    const savedEnabled = storage.get(STORAGE_WATERMARK_ENABLED_KEY)
-    const savedText = storage.get(STORAGE_WATERMARK_TEXT_KEY)
-    const savedColor = storage.get(STORAGE_WATERMARK_COLOR_KEY)
+    const savedEnabled = storage.get<boolean | undefined>(
+      STORAGE_WATERMARK_ENABLED_KEY
+    )
+    const savedText = storage.get<string | undefined>(
+      STORAGE_WATERMARK_TEXT_KEY
+    )
+    const savedColor = storage.get<string | undefined>(
+      STORAGE_WATERMARK_COLOR_KEY
+    )
 
     if (typeof savedEnabled === 'boolean') {
       this.watermarkEnabled = savedEnabled

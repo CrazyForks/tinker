@@ -44,7 +44,7 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const savedTab = storage.get('tab') as Tab | undefined
+    const savedTab = storage.get<Tab | undefined>('tab')
     if (savedTab) this.tab = savedTab
 
     const savedCdH = storage.get('cdHours')

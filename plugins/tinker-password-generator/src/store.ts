@@ -50,7 +50,7 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const saved = storage.get('settings') as StorageData | undefined
+    const saved = storage.get<StorageData | undefined>('settings')
     if (saved) {
       this.length = saved.length ?? 12
       this.repeat = saved.repeat ?? 0

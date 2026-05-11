@@ -189,9 +189,9 @@ class Store extends BaseStore {
 
   private loadStorage() {
     try {
-      const viewMode = storage.get(STORAGE_KEY_VIEW_MODE)
+      const viewMode = storage.get<ViewMode | undefined>(STORAGE_KEY_VIEW_MODE)
       if (viewMode) {
-        this.viewMode = viewMode as ViewMode
+        this.viewMode = viewMode
       }
     } catch (error) {
       console.error('Failed to load from storage:', error)

@@ -40,9 +40,9 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const savedContent = storage.get(STORAGE_KEY)
-    const savedMode = storage.get(MODE_STORAGE_KEY)
-    const savedLanguage = storage.get(LANGUAGE_STORAGE_KEY)
+    const savedContent = storage.get<string | undefined>(STORAGE_KEY)
+    const savedMode = storage.get<ViewMode | undefined>(MODE_STORAGE_KEY)
+    const savedLanguage = storage.get<string | undefined>(LANGUAGE_STORAGE_KEY)
 
     if (savedContent) {
       try {
@@ -54,7 +54,7 @@ class Store extends BaseStore {
     }
 
     if (savedMode) {
-      this.mode = savedMode as ViewMode
+      this.mode = savedMode
     }
 
     if (savedLanguage) {

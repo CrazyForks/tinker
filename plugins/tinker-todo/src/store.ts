@@ -42,24 +42,30 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const savedFilter = storage.get(STORAGE_KEY_CURRENT_FILTER)
+    const savedFilter = storage.get<FilterType | undefined>(
+      STORAGE_KEY_CURRENT_FILTER
+    )
     if (
       savedFilter &&
       (['all', 'today', 'important', 'completed'] as FilterType[]).includes(
-        savedFilter as FilterType
+        savedFilter
       )
     ) {
-      this.currentFilter = savedFilter as FilterType
+      this.currentFilter = savedFilter
     }
 
-    const savedShowCompleted = storage.get(STORAGE_KEY_SHOW_COMPLETED)
+    const savedShowCompleted = storage.get<boolean | undefined>(
+      STORAGE_KEY_SHOW_COMPLETED
+    )
     if (savedShowCompleted !== undefined) {
-      this.showCompleted = savedShowCompleted as boolean
+      this.showCompleted = savedShowCompleted
     }
 
-    const savedRecentFiles = storage.get(STORAGE_KEY_RECENT_FILES)
+    const savedRecentFiles = storage.get<string[] | undefined>(
+      STORAGE_KEY_RECENT_FILES
+    )
     if (savedRecentFiles) {
-      this.recentFiles = savedRecentFiles as string[]
+      this.recentFiles = savedRecentFiles
     }
   }
 
@@ -92,14 +98,14 @@ class Store extends BaseStore {
   }
 
   private async initializeFile() {
-    const savedPath = storage.get(STORAGE_KEY_FILE_PATH)
+    const savedPath = storage.get<string | undefined>(STORAGE_KEY_FILE_PATH)
     if (savedPath) {
       try {
-        const content = await tinker.readFile(savedPath as string, 'utf-8')
+        const content = await tinker.readFile(savedPath, 'utf-8')
         const lines = content.split('\n').filter((line) => !isStrBlank(line))
 
         runInAction(() => {
-          this.filePath = savedPath as string
+          this.filePath = savedPath
           this.todos = lines.map((line, index) =>
             parseTodoItem(line, `${Date.now()}-${index}`)
           )

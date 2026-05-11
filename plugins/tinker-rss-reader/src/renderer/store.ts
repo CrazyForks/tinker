@@ -28,9 +28,9 @@ class Store extends BaseStore {
   constructor() {
     super()
     makeAutoObservable(this)
-    this.sources = (storage.get('sources') as RSSSource[]) || []
-    this.sidebarOpen = (storage.get('sidebarOpen') as boolean) ?? true
-    this.viewMode = (storage.get('viewMode') as ViewMode) ?? 'list'
+    this.sources = storage.get<RSSSource[] | undefined>('sources') || []
+    this.sidebarOpen = storage.get<boolean | undefined>('sidebarOpen') ?? true
+    this.viewMode = storage.get<ViewMode | undefined>('viewMode') ?? 'list'
     getAllItems().then((items) => {
       runInAction(() => {
         this.items = items

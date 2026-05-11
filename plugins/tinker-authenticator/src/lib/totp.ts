@@ -110,10 +110,7 @@ export function parseOtpAuthUri(uri: string): Partial<{
     if (!match) return null
 
     const label = decodeURIComponent(match[1] || '')
-    const params = query.parse(match[2] || '') as Record<
-      string,
-      string | string[] | undefined
-    >
+    const params = query.parse(match[2] || '')
 
     let issuer = trim(getQueryValue(params.issuer) || '')
     let account = label

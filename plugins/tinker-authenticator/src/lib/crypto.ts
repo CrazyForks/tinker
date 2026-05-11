@@ -22,8 +22,8 @@ function decode(buf: ArrayBuffer): string {
   return decoder.decode(buf)
 }
 
-function toBase64(buf: ArrayBuffer): string {
-  return base64.encode(Array.from(new Uint8Array(buf)))
+function toBase64(buf: ArrayBuffer | Uint8Array): string {
+  return base64.encode(buf instanceof Uint8Array ? buf : new Uint8Array(buf))
 }
 
 function fromBase64(b64: string): Uint8Array<ArrayBuffer> {
@@ -43,7 +43,7 @@ function packBlob(
   packed.set(salt, 0)
   packed.set(iv, SALT_LENGTH)
   packed.set(new Uint8Array(cipher), SALT_LENGTH + IV_LENGTH)
-  return toBase64(packed.buffer as ArrayBuffer)
+  return toBase64(packed)
 }
 
 function unpackBlob(b64: string): {

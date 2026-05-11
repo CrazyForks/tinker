@@ -36,8 +36,7 @@ addEventListener('message', async (event: MessageEvent<Base64Request>) => {
       bytes = new Uint8Array(data.buffer)
     }
 
-    const byteArray = Array.from(bytes)
-    const encoded = base64.encode(byteArray)
+    const encoded = base64.encode(bytes)
     const response: Base64Response = {
       type: 'result',
       id: data.id,

@@ -37,7 +37,7 @@ class Store extends BaseStore {
   }
 
   private loadState() {
-    const saved = storage.get(STATE_KEY) as StoredState | undefined
+    const saved = storage.get<StoredState | undefined>(STATE_KEY)
     if (!saved) return
     this.expression = saved.expression || ''
     this.displayValue = saved.expression || '0'

@@ -47,7 +47,8 @@ class Store extends BaseStore {
   }
 
   private async init() {
-    this.sidebarOpen = (storage.get(SIDEBAR_OPEN_KEY) as boolean) ?? true
+    this.sidebarOpen =
+      storage.get<boolean | undefined>(SIDEBAR_OPEN_KEY) ?? true
     this.fontSize = Number(storage.get(FONT_SIZE_KEY)) || DEFAULT_FONT_SIZE
     await this.loadConfigFiles()
     await this.loadSavedFile()
@@ -61,13 +62,13 @@ class Store extends BaseStore {
   }
 
   private async loadSavedFile() {
-    const savedFilePath = storage.get(STORAGE_KEY)
+    const savedFilePath = storage.get<string | undefined>(STORAGE_KEY)
 
     if (savedFilePath) {
       try {
-        const content = await tinker.readFile(savedFilePath as string, 'utf-8')
+        const content = await tinker.readFile(savedFilePath, 'utf-8')
         runInAction(() => {
-          this.currentFilePath = savedFilePath as string
+          this.currentFilePath = savedFilePath
           this.savedContent = content
           this.content = content
           this.fileVersion++

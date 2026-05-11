@@ -23,8 +23,10 @@ class Store extends BaseStore {
   }
 
   private loadStorage() {
-    const savedContent = storage.get(STORAGE_KEY)
-    const savedEncodingType = storage.get(ENCODING_TYPE_KEY)
+    const savedContent = storage.get<string | undefined>(STORAGE_KEY)
+    const savedEncodingType = storage.get<EncodingType | undefined>(
+      ENCODING_TYPE_KEY
+    )
 
     if (savedContent) {
       try {
@@ -37,7 +39,7 @@ class Store extends BaseStore {
     }
 
     if (savedEncodingType) {
-      this.encodingType = savedEncodingType as EncodingType
+      this.encodingType = savedEncodingType
     }
   }
 

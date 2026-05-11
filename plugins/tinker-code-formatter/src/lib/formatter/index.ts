@@ -34,7 +34,9 @@ const languages: { [k in Languages]: Config<k> } = {
   },
 }
 
-const allLanguageType = sortBy(Object.keys(languages)) as Languages[]
+const allLanguageType = sortBy(
+  Object.keys(languages).filter((key): key is Languages => key in languages)
+)
 
 const load = async <T extends Languages>(name: T): Promise<Format<T>> => {
   const handle = await languages[name].load()

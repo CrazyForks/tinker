@@ -28,9 +28,9 @@ class Store extends BaseStore {
   }
 
   private async init() {
-    const savedDir = storage.get('saveDir')
+    const savedDir = storage.get<string | undefined>('saveDir')
     if (savedDir) {
-      this.saveDir = savedDir as string
+      this.saveDir = savedDir
     } else {
       const defaultDir = await tinker.getPath('downloads')
       runInAction(() => {
