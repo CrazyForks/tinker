@@ -7,5 +7,12 @@
   "noResults": "Enter a query to search files",
   "showInFolder": "Show in Folder",
   "copyPath": "Copy Path",
-  "moveToTrash": "Delete"
+  "delete": "Delete",
+  "confirmDelete": "Confirm Delete",
+  "confirmDeleteMessage": "Are you sure you want to delete \"{{name}}\"?",
+  "moveToTrash": "Move to Trash",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "deleteSuccess": "File deleted successfully",
+  "deleteError": "Failed to delete file"
 }

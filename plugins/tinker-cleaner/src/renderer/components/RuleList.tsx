@@ -101,7 +101,6 @@ export default observer(function RuleList() {
         columnDefs={columnDefs}
         rowData={store.filteredRules}
         getRowId={getRowId}
-        enableCellTextSelection={true}
         suppressCellFocus={true}
         overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
       />

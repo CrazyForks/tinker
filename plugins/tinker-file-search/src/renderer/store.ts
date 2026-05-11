@@ -1,10 +1,12 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import debounce from 'licia/debounce'
+import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
 import { getFileIcon } from 'share/lib/util'
 import type { FileResult } from './types'
 
 const MAX_RESULTS = 100
+const localStore = new LocalStore('tinker-file-search')
 
 class Store extends BaseStore {
   query = ''
@@ -12,8 +14,11 @@ class Store extends BaseStore {
   searching = false
   hasMore = false
   iconCache: Map<string, string> = new Map()
+  moveToTrash: boolean = localStore.get('moveToTrash') !== false
+  pendingDeletePath: string | null = null
 
   private debounceSearch = debounce(() => this.search(), 300)
+  private currentTask: tinker.SearchFileTask | null = null
 
   constructor() {
     super()
@@ -25,31 +30,45 @@ class Store extends BaseStore {
     this.debounceSearch()
   }
 
+  private cancelCurrentTask() {
+    if (this.currentTask) {
+      this.currentTask.kill()
+      this.currentTask = null
+    }
+  }
+
   async search() {
     const query = this.query.trim()
     if (!query) {
+      this.cancelCurrentTask()
       this.results = []
       this.hasMore = false
       return
     }
 
+    this.cancelCurrentTask()
     this.searching = true
 
+    const task = tinker.searchFile(query, {
+      offset: 0,
+      maxResults: MAX_RESULTS,
+    })
+    this.currentTask = task
+
     try {
-      const results = await tinker.searchFile(query, {
-        offset: 0,
-        maxResults: MAX_RESULTS,
-      })
+      const results = await task
       runInAction(() => {
         this.results = results
         this.hasMore = results.length >= MAX_RESULTS
         this.searching = false
+        this.currentTask = null
       })
     } catch {
       runInAction(() => {
         this.results = []
         this.hasMore = false
         this.searching = false
+        this.currentTask = null
       })
     }
   }
@@ -58,21 +77,27 @@ class Store extends BaseStore {
     const query = this.query.trim()
     if (!query || this.searching || !this.hasMore) return
 
+    this.cancelCurrentTask()
     this.searching = true
 
+    const task = tinker.searchFile(query, {
+      offset: this.results.length,
+      maxResults: MAX_RESULTS,
+    })
+    this.currentTask = task
+
     try {
-      const results = await tinker.searchFile(query, {
-        offset: this.results.length,
-        maxResults: MAX_RESULTS,
-      })
+      const results = await task
       runInAction(() => {
         this.results = [...this.results, ...results]
         this.hasMore = results.length >= MAX_RESULTS
         this.searching = false
+        this.currentTask = null
       })
     } catch {
       runInAction(() => {
         this.searching = false
+        this.currentTask = null
       })
     }
   }
@@ -96,14 +121,32 @@ class Store extends BaseStore {
     navigator.clipboard.writeText(filePath)
   }
 
-  async deleteFile(filePath: string) {
+  setMoveToTrash(value: boolean) {
+    this.moveToTrash = value
+    localStore.set('moveToTrash', value)
+  }
+
+  requestDelete(filePath: string) {
+    this.pendingDeletePath = filePath
+  }
+
+  cancelDelete() {
+    this.pendingDeletePath = null
+  }
+
+  async confirmDelete() {
+    const filePath = this.pendingDeletePath
+    if (!filePath) return false
+    this.pendingDeletePath = null
+
     try {
-      await fileSearch.deleteFile(filePath)
+      await fileSearch.deleteFile(filePath, this.moveToTrash)
       runInAction(() => {
         this.results = this.results.filter((r) => r.path !== filePath)
       })
+      return true
     } catch {
-      // ignore
+      return false
     }
   }
 }

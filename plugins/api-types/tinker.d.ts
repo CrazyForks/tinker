@@ -250,6 +250,13 @@ declare global {
       maxResults?: number
     }
 
+    interface SearchFileTask extends Promise<SearchFileResult[]> {
+      /** Force kill (SIGKILL) */
+      kill(): void
+      /** Graceful quit (SIGTERM) */
+      quit(): void
+    }
+
     interface WebviewTag extends Electron.WebviewTag {
       sendCommand(
         method: string,
@@ -460,13 +467,14 @@ declare global {
      * @param query - Search query string
      * @param options - Optional pagination options
      * @example
-     * const results = await tinker.searchFile('*.pdf')
-     * const more = await tinker.searchFile('report', { offset: 50, maxResults: 100 })
+     * const task = tinker.searchFile('*.pdf')
+     * task.kill() // cancel the search
+     * const results = await task
      */
     searchFile(
       query: string,
       options?: tinker.SearchFileOptions
-    ): Promise<tinker.SearchFileResult[]>
+    ): tinker.SearchFileTask
   }
 }
 

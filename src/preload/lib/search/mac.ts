@@ -1,69 +1,94 @@
-import { execFile } from 'child_process'
+import { spawn, ChildProcess } from 'child_process'
 import trim from 'licia/trim'
 import startWith from 'licia/startWith'
 import toInt from 'licia/toInt'
-import filter from 'licia/filter'
 import { SearchFileResult } from './index'
 
 export function searchFile(
   query: string,
   offset: number,
   maxResults: number
-): Promise<SearchFileResult[]> {
-  return new Promise((resolve) => {
-    const args = [
-      '-name',
-      query,
-      '-0',
-      '-attr',
-      'kMDItemFSSize',
-      '-attr',
-      'kMDItemFSContentChangeDate',
-    ]
+): { process: ChildProcess; promise: Promise<SearchFileResult[]> } {
+  const args = [
+    '-name',
+    query,
+    '-0',
+    '-attr',
+    'kMDItemFSSize',
+    '-attr',
+    'kMDItemFSContentChangeDate',
+  ]
 
-    execFile('mdfind', args, { encoding: 'utf8' }, (error, stdout) => {
-      if (error) {
-        resolve([])
-        return
-      }
+  const mdfindProcess = spawn('mdfind', args)
+  const results: SearchFileResult[] = []
+  const target = offset + maxResults
+  let buffer = ''
 
-      try {
-        const results = parseMdfindOutput(stdout)
-        resolve(results.slice(offset, offset + maxResults))
-      } catch {
-        resolve([])
+  const promise = new Promise<SearchFileResult[]>((resolve) => {
+    mdfindProcess.stdout?.on('data', (data: Buffer) => {
+      buffer += data.toString()
+
+      // Process complete entries separated by null byte
+      let nullIndex: number
+      while ((nullIndex = buffer.indexOf('\0')) !== -1) {
+        const entry = buffer.slice(0, nullIndex)
+        buffer = buffer.slice(nullIndex + 1)
+
+        if (!entry || !trim(entry)) continue
+
+        const result = parseEntry(entry)
+        if (result) {
+          results.push(result)
+        }
+
+        // Kill the process early once we have enough results
+        if (results.length >= target) {
+          mdfindProcess.kill()
+          resolve(results.slice(offset, target))
+          return
+        }
       }
     })
+
+    mdfindProcess.on('close', () => {
+      // Process any remaining data in the buffer
+      if (buffer && trim(buffer)) {
+        const result = parseEntry(buffer)
+        if (result) {
+          results.push(result)
+        }
+      }
+      resolve(results.slice(offset, target))
+    })
+
+    mdfindProcess.on('error', () => {
+      resolve([])
+    })
   })
+
+  return { process: mdfindProcess, promise }
 }
 
-function parseMdfindOutput(output: string): SearchFileResult[] {
-  const entries = filter(output.split('\0'), (entry) => trim(entry).length > 0)
-  const results: SearchFileResult[] = []
+function parseEntry(entry: string): SearchFileResult | null {
+  const parts = entry.split(/\s+(?=kMD)/)
+  const filePath = trim(parts[0])
+  if (!filePath) return null
 
-  for (const entry of entries) {
-    const parts = entry.split(/\s+(?=kMD)/)
-    const filePath = trim(parts[0])
-    if (!filePath) continue
+  let size = 0
+  let dateModified = 0
 
-    let size = 0
-    let dateModified = 0
-
-    for (let i = 1; i < parts.length; i++) {
-      const part = parts[i]
-      if (startWith(part, 'kMDItemFSSize')) {
-        const val = extractAttrValue(part)
-        size = val !== null ? toInt(val) : 0
-      } else if (startWith(part, 'kMDItemFSContentChangeDate')) {
-        const val = extractAttrValue(part)
-        dateModified = val !== null ? new Date(val).getTime() || 0 : 0
-      }
+  for (let i = 1; i < parts.length; i++) {
+    const part = parts[i]
+    if (startWith(part, 'kMDItemFSSize')) {
+      const val = extractAttrValue(part)
+      size = val !== null ? toInt(val) : 0
+    } else if (startWith(part, 'kMDItemFSContentChangeDate')) {
+      const val = extractAttrValue(part)
+      dateModified = val !== null ? new Date(val).getTime() || 0 : 0
     }
-
-    results.push({ path: filePath, size, dateModified })
   }
 
-  return results
+  return { path: filePath, size, dateModified }
 }
 
 function extractAttrValue(attr: string): string | null {

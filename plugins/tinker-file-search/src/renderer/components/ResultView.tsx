@@ -11,6 +11,10 @@ import type {
 import fileSize from 'licia/fileSize'
 import dateFormat from 'licia/dateFormat'
 import Grid from 'share/components/Grid'
+import Dialog, { DialogButton } from 'share/components/Dialog'
+import Checkbox from 'share/components/Checkbox'
+import toast from 'react-hot-toast'
+import { tw } from 'share/theme'
 import store from '../store'
 import type { FileResult } from '../types'
 
@@ -125,6 +129,7 @@ export default observer(function ResultView() {
       if (!event.data) return
       const filePath = event.data.path
       const e = event.event as MouseEvent
+      e.preventDefault()
       tinker.showContextMenu(e.clientX, e.clientY, [
         {
           label: t('showInFolder'),
@@ -136,8 +141,8 @@ export default observer(function ResultView() {
         },
         { type: 'separator' },
         {
-          label: t('moveToTrash'),
-          click: () => store.deleteFile(filePath),
+          label: t('delete'),
+          click: () => store.requestDelete(filePath),
         },
       ])
     },
@@ -157,6 +162,19 @@ export default observer(function ResultView() {
     []
   )
 
+  const handleConfirmDelete = useCallback(async () => {
+    const success = await store.confirmDelete()
+    if (success) {
+      toast.success(t('deleteSuccess'))
+    } else {
+      toast.error(t('deleteError'))
+    }
+  }, [t])
+
+  const pendingFileName = store.pendingDeletePath
+    ? store.pendingDeletePath.split(/[\\/]/).pop()
+    : ''
+
   return (
     <div className="flex-1 overflow-hidden">
       <Grid<FileResult>
@@ -167,10 +185,33 @@ export default observer(function ResultView() {
         onRowDoubleClicked={onRowDoubleClicked}
         onCellContextMenu={onCellContextMenu}
         onBodyScrollEnd={onBodyScrollEnd}
-        enableCellTextSelection={true}
         suppressCellFocus={true}
         overlayNoRowsTemplate={`<span>${t('noResults')}</span>`}
       />
+      <Dialog
+        open={!!store.pendingDeletePath}
+        onClose={() => store.cancelDelete()}
+        title={t('confirmDelete')}
+      >
+        <p className={`text-sm ${tw.text.secondary} mb-4`}>
+          {t('confirmDeleteMessage', { name: pendingFileName })}
+        </p>
+        <Checkbox
+          checked={store.moveToTrash}
+          onChange={(checked) => store.setMoveToTrash(checked)}
+          className="mb-6"
+        >
+          {t('moveToTrash')}
+        </Checkbox>
+        <div className="flex gap-2 justify-end">
+          <DialogButton variant="text" onClick={() => store.cancelDelete()}>
+            {t('cancel')}
+          </DialogButton>
+          <DialogButton onClick={handleConfirmDelete}>
+            {t('confirm')}
+          </DialogButton>
+        </div>
+      </Dialog>
     </div>
   )
 })

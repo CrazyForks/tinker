@@ -14,6 +14,11 @@ export function injectApi() {
     quit: () => void
   }> = {}
 
+  const searchFileTasks: types.PlainObj<{
+    kill: () => void
+    quit: () => void
+  }> = {}
+
   const downloadTasks: types.PlainObj<{
     pause: () => void
     resume: () => void
@@ -62,6 +67,29 @@ export function injectApi() {
     }
     extendedPromise.quit = function () {
       diskUsageTasks[taskId]?.quit()
+    }
+
+    return extendedPromise
+  }
+
+  function searchFile(query: string, options?: any) {
+    const { promise, taskId } = _tinker.searchFile(query, options)
+
+    searchFileTasks[taskId] = {
+      kill: () => _tinker.killSearchFile(taskId),
+      quit: () => _tinker.quitSearchFile(taskId),
+    }
+
+    promise.finally(() => {
+      delete searchFileTasks[taskId]
+    })
+
+    const extendedPromise = promise as any
+    extendedPromise.kill = function () {
+      searchFileTasks[taskId]?.kill()
+    }
+    extendedPromise.quit = function () {
+      searchFileTasks[taskId]?.quit()
     }
 
     return extendedPromise
@@ -177,7 +205,7 @@ export function injectApi() {
     callAI: _tinker.callAI,
     callAIStream,
     getAIProviders: _tinker.getProviderList,
-    searchFile: _tinker.searchFile,
+    searchFile,
     download,
     getDownloads,
   }

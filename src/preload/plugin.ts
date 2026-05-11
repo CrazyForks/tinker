@@ -19,7 +19,7 @@ import isStrBlank from 'licia/isStrBlank'
 import { injectRendererScript, domReady } from './lib/util'
 import { runFFmpeg, killFFmpeg, quitFFmpeg, getMediaInfo } from './lib/ffmpeg'
 import { getDiskUsage, killDiskUsage, quitDiskUsage } from './lib/pdu'
-import { searchFile } from './lib/search'
+import { searchFile, killSearchFile, quitSearchFile } from './lib/search'
 import { saveData as saveDataUtil, loadData as loadDataUtil } from './lib/data'
 import { callAI, callAIStream, abortAI, getProviderList } from './lib/ai/index'
 import {
@@ -164,6 +164,8 @@ const tinkerObj = {
   getSetting: builtinOnly(mainObj.getSettingsStore),
   setSetting: builtinOnly(mainObj.setSettingsStore),
   searchFile,
+  killSearchFile,
+  quitSearchFile,
   callAI,
   callAIStream,
   abortAI,

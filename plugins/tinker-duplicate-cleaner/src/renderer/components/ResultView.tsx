@@ -241,7 +241,6 @@ export default observer(function ResultView() {
         isFullWidthRow={isFullWidthRow}
         fullWidthCellRenderer={fullWidthCellRenderer}
         onRowClicked={onRowClicked}
-        enableCellTextSelection={true}
         suppressCellFocus={true}
         overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
       />

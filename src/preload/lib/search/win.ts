@@ -1,4 +1,4 @@
-import { exec } from 'child_process'
+import { spawn, exec, ChildProcess } from 'child_process'
 import trim from 'licia/trim'
 import sleep from 'licia/sleep'
 import map from 'licia/map'
@@ -48,21 +48,32 @@ export async function searchFile(
   query: string,
   offset: number,
   maxResults: number
-): Promise<SearchFileResult[]> {
+): Promise<{ process: ChildProcess; promise: Promise<SearchFileResult[]> }> {
   await ensureEverythingRunning()
 
   const escaped = escapeForCmd(query)
-  const cmd = `chcp 65001>nul && "${esPath}" -json -size -date-modified -offset ${offset} -max-results ${maxResults} ${escaped}`
+  const args = [
+    '-json',
+    '-size',
+    '-date-modified',
+    '-offset',
+    String(offset),
+    '-max-results',
+    String(maxResults),
+    escaped,
+  ]
 
-  return new Promise((resolve) => {
-    exec(cmd, { windowsHide: true, encoding: 'utf8' }, (error, stdout) => {
-      if (error) {
-        resolve([])
-        return
-      }
+  const esProcess = spawn(esPath, args, { windowsHide: true })
+  let stdoutData = ''
 
+  const promise = new Promise<SearchFileResult[]>((resolve) => {
+    esProcess.stdout?.on('data', (data: Buffer) => {
+      stdoutData += data.toString()
+    })
+
+    esProcess.on('close', () => {
       try {
-        const items = JSON.parse(stdout)
+        const items = JSON.parse(stdoutData)
         const results: SearchFileResult[] = map(items, (item: any) => ({
           path: item.filename,
           size: item.size || 0,
@@ -73,5 +84,11 @@ export async function searchFile(
         resolve([])
       }
     })
+
+    esProcess.on('error', () => {
+      resolve([])
+    })
   })
+
+  return { process: esProcess, promise }
 }
