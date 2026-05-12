@@ -14,6 +14,9 @@ export default observer(function FilePreview() {
     if (file && !store.iconCache.has(file.path)) {
       store.loadFileIcon(file.path)
     }
+    if (file && !store.fstatCache.has(file.path)) {
+      store.loadFstat(file.path)
+    }
   }, [file?.path])
 
   if (!file) {
@@ -29,6 +32,7 @@ export default observer(function FilePreview() {
   }
 
   const icon = store.iconCache.get(file.path)
+  const fstat = store.fstatCache.get(file.path)
   const name = file.path.split(/[\\/]/).pop() || file.path
   const dir = file.path.replace(/[\\/][^\\/]+$/, '')
 
@@ -43,14 +47,26 @@ export default observer(function FilePreview() {
           <div className="w-16 h-16" />
         )}
       </div>
-      <div className={`p-4 border-t ${tw.border} space-y-2`}>
+      <div className={`p-4 space-y-2`}>
         <InfoRow label={t('name')} value={name} />
         <InfoRow label={t('path')} value={dir} />
         <InfoRow label={t('size')} value={fileSize(file.size)} />
-        <InfoRow
-          label={t('modified')}
-          value={dateFormat(new Date(file.dateModified), 'yyyy-mm-dd HH:MM')}
-        />
+        {fstat && (
+          <>
+            <InfoRow
+              label={t('modified')}
+              value={dateFormat(new Date(fstat.mtime), 'yyyy-mm-dd HH:MM')}
+            />
+            <InfoRow
+              label={t('created')}
+              value={dateFormat(new Date(fstat.ctime), 'yyyy-mm-dd HH:MM')}
+            />
+            <InfoRow
+              label={t('lastOpened')}
+              value={dateFormat(new Date(fstat.atime), 'yyyy-mm-dd HH:MM')}
+            />
+          </>
+        )}
       </div>
     </div>
   )

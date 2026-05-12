@@ -20,5 +20,7 @@
   "name": "名称：",
   "path": "路径：",
   "size": "大小：",
-  "modified": "修改时间："
+  "modified": "修改时间：",
+  "created": "创建时间：",
+  "lastOpened": "上次打开："
 }

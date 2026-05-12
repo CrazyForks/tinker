@@ -20,5 +20,9 @@
   "name": "Name:",
   "path": "Path:",
   "size": "Size:",
-  "modified": "Modified:"
+  "modified": "Modified:",
+  "created": "Created:",
+  "lastOpened": "Last Opened:",
+  "created": "Created:",
+  "lastOpened": "Last Opened:"
 }
