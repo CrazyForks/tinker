@@ -4,7 +4,12 @@ import path from 'path'
 import { shareExternal } from './vendor/vite.config'
 
 const external = builtinModules.filter((e) => !e.startsWith('_'))
-external.push('electron', ...shareExternal, ...external.map((m) => `node:${m}`))
+external.push(
+  'electron',
+  'licia',
+  ...shareExternal,
+  ...external.map((m) => `node:${m}`)
+)
 
 export default defineConfig(async (): Promise<UserConfig> => {
   const cwd = process.cwd()

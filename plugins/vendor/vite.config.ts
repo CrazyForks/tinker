@@ -48,6 +48,8 @@ const globals: Record<string, string> = {
   '@tiptap/starter-kit': 'tiptapStarterKit',
   '@tiptap/extension-underline': 'tiptapExtensionUnderline',
   '@tiptap/extension-highlight': 'tiptapExtensionHighlight',
+  i18next: 'i18next',
+  'react-i18next': 'reactI18next',
 }
 
 export const shareExternal = ['systeminformation']
@@ -254,6 +256,15 @@ export default defineConfig(({ mode }) => {
       ['react', 'react-dom'],
       'dist/videojs'
     )
+  }
+
+  if (target === 'i18next') {
+    return createConfig('i18next', 'PluginVendorI18next', [
+      'react',
+      'use-sync-external-store/shim',
+      'use-sync-external-store/shim/with-selector',
+      'use-sync-external-store/with-selector',
+    ])
   }
 
   return createConfig('react', 'PluginVendorReact')

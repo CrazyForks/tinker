@@ -4,7 +4,12 @@ import { builtinModules } from 'node:module'
 import { alias } from './vite.config'
 
 const external = builtinModules.filter((e) => !e.startsWith('_'))
-external.push('electron', 'ffmpeg-static', ...external.map((m) => `node:${m}`))
+external.push(
+  'electron',
+  'ffmpeg-static',
+  'licia',
+  ...external.map((m) => `node:${m}`)
+)
 
 export default defineConfig({
   build: {

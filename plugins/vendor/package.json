@@ -1,7 +1,7 @@
 {
   "name": "plugin-vendor",
   "scripts": {
-    "build": "npm run build:tailwind && npm run build:react && npm run build:mobx && npm run build:mathjs && npm run build:idb && npm run build:monaco && npm run build:aggrid && npm run build:lucide && npm run build:licia && npm run build:htmltoimage && npm run build:wavesurfer && npm run build:zxing && npm run build:resizablepanels && npm run build:syntaxhighlighter && npm run build:markdown && npm run build:hexeditor && npm run build:headlessui && npm run build:hottoast && npm run build:tiptap && npm run build:videojs",
+    "build": "npm run build:tailwind && npm run build:react && npm run build:mobx && npm run build:mathjs && npm run build:idb && npm run build:monaco && npm run build:aggrid && npm run build:lucide && npm run build:licia && npm run build:htmltoimage && npm run build:wavesurfer && npm run build:zxing && npm run build:resizablepanels && npm run build:syntaxhighlighter && npm run build:markdown && npm run build:hexeditor && npm run build:headlessui && npm run build:hottoast && npm run build:tiptap && npm run build:videojs && npm run build:i18next",
     "build:tailwind": "node tailwind.js",
     "build:react": "vite build --config vite.config.ts --mode react",
     "build:mobx": "vite build --config vite.config.ts --mode mobx",
@@ -21,7 +21,8 @@
     "build:headlessui": "vite build --config vite.config.ts --mode headlessui",
     "build:hottoast": "vite build --config vite.config.ts --mode hottoast",
     "build:tiptap": "vite build --config vite.config.ts --mode tiptap",
-    "build:videojs": "vite build --config vite.config.ts --mode videojs"
+    "build:videojs": "vite build --config vite.config.ts --mode videojs",
+    "build:i18next": "vite build --config vite.config.ts --mode i18next"
   },
   "dependencies": {
     "systeminformation": "^5.30.7"
@@ -33,12 +34,14 @@
     "ag-grid-community": "^35.0.0",
     "ag-grid-react": "^35.0.0",
     "html-to-image": "^1.11.13",
+    "i18next": "^25.8.4",
     "idb": "^8.0.3",
     "lucide-react": "^0.556.0",
     "mathjs": "^15.1.0",
     "monaco-editor": "^0.55.1",
     "react-hex-editor": "0.3.0",
     "react-hot-toast": "^2.6.0",
+    "react-i18next": "^16.5.4",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.3.3",
     "react-syntax-highlighter": "^16.1.1",
