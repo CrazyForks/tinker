@@ -3,10 +3,9 @@ import fileUrl from 'licia/fileUrl'
 import isUrl from 'licia/isUrl'
 import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
+import { getFileCategory } from 'share/lib/util'
 import {
   isImageUrl,
-  isImageExtension,
-  isVideoExtension,
   IMAGE_EXTENSIONS,
   TEXT_EXTENSIONS,
   VIDEO_EXTENSIONS,
@@ -154,9 +153,10 @@ class Store extends BaseStore {
     if (result.canceled || !result.filePaths[0]) return
 
     const filePath = result.filePaths[0]
-    if (isImageExtension(filePath)) {
+    const category = getFileCategory(filePath)
+    if (category === 'image') {
       this.setImageSrc(fileUrl(filePath))
-    } else if (isVideoExtension(filePath)) {
+    } else if (category === 'video') {
       this.setVideoSrc(fileUrl(filePath))
     } else {
       try {

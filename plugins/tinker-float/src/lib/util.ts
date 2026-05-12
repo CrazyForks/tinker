@@ -56,15 +56,3 @@ export function isImageUrl(url: string): boolean {
     return false
   }
 }
-
-function getExtension(filePath: string): string {
-  return filePath.split('.').pop()?.toLowerCase() || ''
-}
-
-export function isImageExtension(filePath: string): boolean {
-  return IMAGE_EXTENSIONS.includes(getExtension(filePath))
-}
-
-export function isVideoExtension(filePath: string): boolean {
-  return VIDEO_EXTENSIONS.includes(getExtension(filePath))
-}

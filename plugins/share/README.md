@@ -55,7 +55,12 @@ Use `store.isDark` for theme-aware rendering.
 
 ```ts
 import {
-  Toolbar, ToolbarButton, ToolbarSeparator, ToolbarSpacer, ToolbarSearch, TOOLBAR_ICON_SIZE,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarSpacer,
+  ToolbarSearch,
+  TOOLBAR_ICON_SIZE,
 } from 'share/components/Toolbar'
 ```
 
@@ -87,7 +92,13 @@ import Slider from 'share/components/Slider'
 ### AiChat
 
 ```ts
-import { MessageList, ChatInput, MarkdownContent, SearchCard, type ChatMessage } from 'share/components/AiChat'
+import {
+  MessageList,
+  ChatInput,
+  MarkdownContent,
+  SearchCard,
+  type ChatMessage,
+} from 'share/components/AiChat'
 ```
 
 `MessageList` and `ChatInput` are render-only; provide your own `messages`, `send`, `retry`, `delete`, and session logic. Use `getSearchCardProps(toolMsg)` to extract props for `SearchCard`.
@@ -96,7 +107,12 @@ import { MessageList, ChatInput, MarkdownContent, SearchCard, type ChatMessage }
 
 ```ts
 import HexEditor from 'share/components/HexEditor'
-;<HexEditor data={uint8Array} nonce={n} isDark={bool} onSetValue={(offset, value) => {}} />
+;<HexEditor
+  data={uint8Array}
+  nonce={n}
+  isDark={bool}
+  onSetValue={(offset, value) => {}}
+/>
 ```
 
 Requires `react-hex-editor` and `styled-components` vendor scripts.
@@ -122,7 +138,7 @@ import ImageOpen from 'share/components/ImageOpen'
 import Tooltip from 'share/components/Tooltip'
 import NavList from 'share/components/NavList'
 import Tree from 'share/components/Tree'
-import Grid from 'share/components/Grid'  // AG Grid defaults for header/row height
+import Grid from 'share/components/Grid' // AG Grid defaults for header/row height
 ```
 
 ## Hooks
@@ -158,18 +174,37 @@ agent.setProvider / setModel / setSystemPrompt / setMessages
 
 ```ts
 // Web
-import { WEB_FETCH_TOOL, WEB_SEARCH_TOOL, createWebFetchToolResult, createWebSearchToolResult } from 'share/tools/web'
+import {
+  WEB_FETCH_TOOL,
+  WEB_SEARCH_TOOL,
+  createWebFetchToolResult,
+  createWebSearchToolResult,
+} from 'share/tools/web'
 // Shell
 import { EXEC_TOOL, getToolLabel } from 'share/tools/shell'
 import { exec } from 'share/tools/shellImpl'
 // File System
-import { READ_FILE_TOOL, WRITE_FILE_TOOL, EDIT_FILE_TOOL, LIST_DIR_TOOL } from 'share/tools/fileSystem'
+import {
+  READ_FILE_TOOL,
+  WRITE_FILE_TOOL,
+  EDIT_FILE_TOOL,
+  LIST_DIR_TOOL,
+} from 'share/tools/fileSystem'
 ```
 
 ## Utilities
 
 ```ts
-import { isDiskNodeDirectory, mediaDurationFormat, openImageFile, fileExists, resolveSavePath, getFileIcon } from 'share/lib/util'
+import {
+  isDiskNodeDirectory,
+  mediaDurationFormat,
+  openImageFile,
+  fileExists,
+  resolveSavePath,
+  getFileIcon,
+  getMimeTypeFromPath,
+  getFileCategory,
+} from 'share/lib/util'
 ```
 
 ### Popup Window

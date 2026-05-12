@@ -1,10 +1,9 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
-import { getFileIcon } from 'share/lib/util'
+import { getFileCategory, getFileIcon } from 'share/lib/util'
 import type { FileEntry, FilterTab } from './types'
 import { collectLargeFiles } from './lib/dataProcess'
-import { getFileCategory } from './lib/util'
 
 const localStore = new LocalStore('tinker-large-file')
 
