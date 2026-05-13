@@ -25,5 +25,6 @@
   "cleanErrors": "{{count}} 个文件删除失败",
   "moveToTrash": "移到回收站",
   "confirm": "确定",
-  "noRows": "未发现重复文件"
+  "noRows": "未发现重复文件",
+  "preview": "预览"
 }

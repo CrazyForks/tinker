@@ -14,8 +14,6 @@ class Store extends BaseStore {
   searching = false
   hasMore = false
   iconCache: Map<string, string> = new Map()
-  fstatCache: Map<string, { mtime: string; atime: string; ctime: string }> =
-    new Map()
   moveToTrash: boolean = localStore.get('moveToTrash') !== false
   pendingDeletePath: string | null = null
   showPreview: boolean = localStore.get('showPreview') === true
@@ -104,19 +102,6 @@ class Store extends BaseStore {
         this.currentTask = null
       })
     }
-  }
-
-  async loadFstat(filePath: string) {
-    if (this.fstatCache.has(filePath)) return
-
-    const stat = await tinker.fstat(filePath)
-    runInAction(() => {
-      this.fstatCache.set(filePath, {
-        mtime: stat.mtime,
-        atime: stat.atime,
-        ctime: stat.ctime,
-      })
-    })
   }
 
   async loadFileIcon(filePath: string) {

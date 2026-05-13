@@ -1,10 +1,15 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
 import { useMemo, useCallback, memo, useEffect } from 'react'
-import type { ColDef, ICellRendererParams } from 'ag-grid-community'
+import type {
+  ColDef,
+  ICellRendererParams,
+  SelectionChangedEvent,
+} from 'ag-grid-community'
 import fileSize from 'licia/fileSize'
 import Grid from 'share/components/Grid'
 import Checkbox from 'share/components/Checkbox'
+import FilePreview from 'share/components/FilePreview'
 import type { FileEntry } from '../types'
 import store from '../store'
 
@@ -72,7 +77,15 @@ const NameCell = observer(function NameCell({
 })
 
 export default observer(function ResultView() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  const onSelectionChanged = useCallback(
+    (event: SelectionChangedEvent<FileEntry>) => {
+      const rows = event.api.getSelectedRows()
+      store.setSelectedFile(rows[0] ?? null)
+    },
+    []
+  )
 
   const columnDefs: ColDef<FileEntry>[] = useMemo(
     () => [
@@ -119,16 +132,29 @@ export default observer(function ResultView() {
     []
   )
 
+  const file = store.selectedFile
+
   return (
-    <div className="flex-1 overflow-hidden">
-      <Grid<FileEntry>
-        isDark={store.isDark}
-        columnDefs={columnDefs}
-        rowData={store.filteredFiles}
-        getRowId={getRowId}
-        suppressCellFocus={true}
-        overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
-      />
+    <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-hidden">
+        <Grid<FileEntry>
+          isDark={store.isDark}
+          columnDefs={columnDefs}
+          rowData={store.filteredFiles}
+          getRowId={getRowId}
+          rowSelection={{
+            mode: 'singleRow',
+            checkboxes: false,
+            enableClickSelection: true,
+          }}
+          onSelectionChanged={onSelectionChanged}
+          suppressCellFocus={true}
+          overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
+        />
+      </div>
+      {store.showPreview && (
+        <FilePreview path={file?.path ?? null} locale={i18n.language} />
+      )}
     </div>
   )
 })

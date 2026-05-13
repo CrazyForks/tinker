@@ -15,12 +15,5 @@
   "confirm": "确定",
   "deleteSuccess": "文件删除成功",
   "deleteError": "文件删除失败",
-  "preview": "预览",
-  "noFileSelected": "选择文件以预览",
-  "name": "名称：",
-  "path": "路径：",
-  "size": "大小：",
-  "modified": "修改时间：",
-  "created": "创建时间：",
-  "lastOpened": "上次打开："
+  "preview": "预览"
 }

@@ -1,16 +1,15 @@
 import { observer } from 'mobx-react-lite'
-import { useMemo, useCallback, useRef, useEffect } from 'react'
+import { useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from 'share/components/Grid'
 import {
   ColDef,
-  RowClickedEvent,
+  SelectionChangedEvent,
   GetRowIdParams,
   ICellRendererParams,
   RowDragEndEvent,
   IRowDragItem,
 } from 'ag-grid-community'
-import { AgGridReact } from 'ag-grid-react'
 import store from '../store'
 import AddProviderDialog from './AddProviderDialog'
 import ClaudeIcon from '../assets/claude.svg?react'
@@ -46,7 +45,6 @@ export default observer(function AiSection({
   onAddClose,
 }: Props) {
   const { t } = useTranslation()
-  const gridRef = useRef<AgGridReact<RowData>>(null)
 
   const columnDefs: ColDef<RowData>[] = useMemo(
     () => [
@@ -89,17 +87,18 @@ export default observer(function AiSection({
       apiType: p.apiType,
     }))
 
-  const onRowClicked = useCallback((event: RowClickedEvent<RowData>) => {
-    if (event.data) store.setSelectedProviderName(event.data.name)
-  }, [])
+  const onSelectionChanged = useCallback(
+    (event: SelectionChangedEvent<RowData>) => {
+      const rows = event.api.getSelectedRows()
+      if (rows[0]) store.setSelectedProviderName(rows[0].name)
+    },
+    []
+  )
 
   const getRowId = useCallback(
     (params: GetRowIdParams<RowData>) => params.data.name,
     []
   )
-
-  const getRowClass = (params: { data?: RowData }) =>
-    params.data?.name === store.selectedProviderName ? 'ag-row-selected' : ''
 
   const onRowDragEnd = useCallback((event: RowDragEndEvent<RowData>) => {
     const { node, overNode } = event
@@ -114,25 +113,22 @@ export default observer(function AiSection({
     }
   }, [])
 
-  useEffect(() => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.redrawRows()
-    }
-  }, [store.selectedProviderName])
-
   const localeText = useMemo(() => ({ noRowsToShow: t('noProviders') }), [t])
 
   return (
     <div className="h-full overflow-hidden">
       <Grid<RowData>
         isDark={store.isDark}
-        ref={gridRef}
         columnDefs={columnDefs}
         rowData={rowData}
         defaultColDef={{ sortable: false }}
-        onRowClicked={onRowClicked}
+        rowSelection={{
+          mode: 'singleRow',
+          checkboxes: false,
+          enableClickSelection: true,
+        }}
+        onSelectionChanged={onSelectionChanged}
         getRowId={getRowId}
-        getRowClass={getRowClass}
         animateRows={false}
         enableCellTextSelection={false}
         suppressCellFocus={true}

@@ -19,6 +19,8 @@ class Store extends BaseStore {
   filterTab: FilterTab = 'all'
   selectedFiles: Set<string> = new Set()
   iconCache: Map<string, string> = new Map()
+  showPreview: boolean = localStore.get('showPreview') === true
+  selectedFile: { path: string; size: number } | null = null
   moveToTrash: boolean = localStore.get('moveToTrash') !== false
 
   constructor() {
@@ -35,6 +37,15 @@ class Store extends BaseStore {
         this.iconCache.set(filePath, icon)
       })
     }
+  }
+
+  setShowPreview(value: boolean) {
+    this.showPreview = value
+    localStore.set('showPreview', value)
+  }
+
+  setSelectedFile(file: { path: string; size: number } | null) {
+    this.selectedFile = file
   }
 
   get selectedSize(): number {

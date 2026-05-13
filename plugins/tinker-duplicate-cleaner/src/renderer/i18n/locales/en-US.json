@@ -25,5 +25,6 @@
   "cleanErrors": "{{count}} files failed to delete",
   "moveToTrash": "Move to Trash",
   "confirm": "Confirm",
-  "noRows": "No duplicate files found"
+  "noRows": "No duplicate files found",
+  "preview": "Preview"
 }

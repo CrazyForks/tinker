@@ -1,16 +1,14 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { useMemo, useCallback, useEffect, useRef } from 'react'
+import { useMemo, useCallback } from 'react'
 import type {
   ColDef,
   ICellRendererParams,
   RowDoubleClickedEvent,
-  RowClickedEvent,
-  RowClassParams,
+  SelectionChangedEvent,
   CellContextMenuEvent,
   BodyScrollEndEvent,
 } from 'ag-grid-community'
-import type { AgGridReact } from 'ag-grid-react'
 import fileSize from 'licia/fileSize'
 import dateFormat from 'licia/dateFormat'
 import Grid from 'share/components/Grid'
@@ -70,20 +68,14 @@ const PathCell = ({ data }: ICellRendererParams<FileResult>) => {
 
 export default observer(function ResultView() {
   const { t } = useTranslation()
-  const gridRef = useRef<AgGridReact<FileResult>>(null)
 
-  const getRowClass = useCallback((params: RowClassParams<FileResult>) => {
-    if (params.data && store.selectedFile?.path === params.data.path) {
-      return 'ag-row-selected'
-    }
-    return ''
-  }, [])
-
-  useEffect(() => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.redrawRows()
-    }
-  }, [store.selectedFile])
+  const onSelectionChanged = useCallback(
+    (event: SelectionChangedEvent<FileResult>) => {
+      const rows = event.api.getSelectedRows()
+      store.setSelectedFile(rows[0] ?? null)
+    },
+    []
+  )
 
   const columnDefs: ColDef<FileResult>[] = useMemo(() => {
     const cols: ColDef<FileResult>[] = [
@@ -172,12 +164,6 @@ export default observer(function ResultView() {
     [t]
   )
 
-  const onRowClicked = useCallback((event: RowClickedEvent<FileResult>) => {
-    if (event.data) {
-      store.setSelectedFile(event.data)
-    }
-  }, [])
-
   const onBodyScrollEnd = useCallback(
     (event: BodyScrollEndEvent<FileResult>) => {
       if (!store.hasMore || store.searching) return
@@ -207,14 +193,17 @@ export default observer(function ResultView() {
   return (
     <div className="flex-1 overflow-hidden">
       <Grid<FileResult>
-        ref={gridRef}
         isDark={store.isDark}
         columnDefs={columnDefs}
         rowData={store.results}
         getRowId={getRowId}
-        getRowClass={getRowClass}
+        rowSelection={{
+          mode: 'singleRow',
+          checkboxes: false,
+          enableClickSelection: true,
+        }}
+        onSelectionChanged={onSelectionChanged}
         onRowDoubleClicked={onRowDoubleClicked}
-        onRowClicked={onRowClicked}
         onCellContextMenu={onCellContextMenu}
         onBodyScrollEnd={onBodyScrollEnd}
         suppressCellFocus={true}

@@ -15,14 +15,5 @@
   "confirm": "Confirm",
   "deleteSuccess": "File deleted successfully",
   "deleteError": "Failed to delete file",
-  "preview": "Preview",
-  "noFileSelected": "Select a file to preview",
-  "name": "Name:",
-  "path": "Path:",
-  "size": "Size:",
-  "modified": "Modified:",
-  "created": "Created:",
-  "lastOpened": "Last Opened:",
-  "created": "Created:",
-  "lastOpened": "Last Opened:"
+  "preview": "Preview"
 }

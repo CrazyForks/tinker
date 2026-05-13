@@ -1,16 +1,18 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { useMemo, useCallback, useState, useEffect } from 'react'
+import { useMemo, useCallback, useState } from 'react'
 import type {
   ColDef,
   ICellRendererParams,
   IsFullWidthRowParams,
   RowClickedEvent,
+  SelectionChangedEvent,
 } from 'ag-grid-community'
 import fileSize from 'licia/fileSize'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import Grid from 'share/components/Grid'
 import Checkbox from 'share/components/Checkbox'
+import FilePreview from 'share/components/FilePreview'
 import store from '../store'
 
 interface GroupRow {
@@ -143,9 +145,22 @@ function GroupCellRenderer({ data, expanded }: GroupCellProps) {
 }
 
 export default observer(function ResultView() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(
     () => new Set()
+  )
+
+  const onSelectionChanged = useCallback(
+    (event: SelectionChangedEvent<RowData>) => {
+      const rows = event.api.getSelectedRows()
+      const row = rows[0]
+      if (row && !isGroupRow(row)) {
+        store.setSelectedFile({ path: row.path, size: row.size })
+      } else {
+        store.setSelectedFile(null)
+      }
+    },
+    []
   )
 
   const rowData = useMemo(
@@ -231,19 +246,32 @@ export default observer(function ResultView() {
     })
   }, [])
 
+  const file = store.selectedFile
+
   return (
-    <div className="flex-1 overflow-hidden">
-      <Grid<RowData>
-        isDark={store.isDark}
-        columnDefs={columnDefs}
-        rowData={rowData}
-        getRowId={getRowId}
-        isFullWidthRow={isFullWidthRow}
-        fullWidthCellRenderer={fullWidthCellRenderer}
-        onRowClicked={onRowClicked}
-        suppressCellFocus={true}
-        overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
-      />
+    <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-hidden">
+        <Grid<RowData>
+          isDark={store.isDark}
+          columnDefs={columnDefs}
+          rowData={rowData}
+          getRowId={getRowId}
+          rowSelection={{
+            mode: 'singleRow',
+            checkboxes: false,
+            enableClickSelection: true,
+          }}
+          onSelectionChanged={onSelectionChanged}
+          isFullWidthRow={isFullWidthRow}
+          fullWidthCellRenderer={fullWidthCellRenderer}
+          onRowClicked={onRowClicked}
+          suppressCellFocus={true}
+          overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
+        />
+      </div>
+      {store.showPreview && (
+        <FilePreview path={file?.path ?? null} locale={i18n.language} />
+      )}
     </div>
   )
 })

@@ -5,12 +5,10 @@ import store from '../store'
 import Grid from 'share/components/Grid'
 import {
   ColDef,
-  RowClickedEvent,
+  SelectionChangedEvent,
   GetRowIdParams,
-  RowClassParams,
 } from 'ag-grid-community'
-import { useMemo, useCallback, useRef, useEffect } from 'react'
-import { AgGridReact } from 'ag-grid-react'
+import { useMemo, useCallback } from 'react'
 
 interface RowData {
   id: string
@@ -21,7 +19,6 @@ interface RowData {
 
 export default observer(function EntryList() {
   const { t } = useTranslation()
-  const gridRef = useRef<AgGridReact<RowData>>(null)
 
   const columnDefs: ColDef<RowData>[] = useMemo(
     () => [
@@ -59,30 +56,20 @@ export default observer(function EntryList() {
     }))
   }, [store.filteredEntries])
 
-  const onRowClicked = useCallback((event: RowClickedEvent<RowData>) => {
-    if (event.data) {
-      store.selectEntry(event.data.id)
-    }
-  }, [])
+  const onSelectionChanged = useCallback(
+    (event: SelectionChangedEvent<RowData>) => {
+      const rows = event.api.getSelectedRows()
+      if (rows[0]) {
+        store.selectEntry(rows[0].id)
+      }
+    },
+    []
+  )
 
   const getRowId = useCallback(
     (params: GetRowIdParams<RowData>) => params.data.id,
     []
   )
-
-  const getRowClass = useCallback((params: RowClassParams<RowData>) => {
-    if (params.data && params.data.id === store.selectedEntryId) {
-      return 'ag-row-selected'
-    }
-    return ''
-  }, [])
-
-  // Refresh row styles when selected entry changes
-  useEffect(() => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.redrawRows()
-    }
-  }, [store.selectedEntryId])
 
   const localeText = useMemo(
     () => ({
@@ -104,12 +91,15 @@ export default observer(function EntryList() {
   return (
     <Grid<RowData>
       isDark={store.isDark}
-      ref={gridRef}
       columnDefs={columnDefs}
       rowData={rowData}
-      onRowClicked={onRowClicked}
+      rowSelection={{
+        mode: 'singleRow',
+        checkboxes: false,
+        enableClickSelection: true,
+      }}
+      onSelectionChanged={onSelectionChanged}
       getRowId={getRowId}
-      getRowClass={getRowClass}
       animateRows={true}
       enableCellTextSelection={false}
       suppressCellFocus={true}

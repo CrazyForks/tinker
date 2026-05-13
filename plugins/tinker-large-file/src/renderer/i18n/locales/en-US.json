@@ -24,5 +24,6 @@
   "cleanErrors": "{{count}} files failed to delete",
   "moveToTrash": "Move to Trash",
   "confirm": "Confirm",
-  "noRows": "No large files found"
+  "noRows": "No large files found",
+  "preview": "Preview"
 }
