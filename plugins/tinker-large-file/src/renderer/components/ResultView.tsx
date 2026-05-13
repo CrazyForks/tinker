@@ -87,8 +87,8 @@ export default observer(function ResultView() {
     []
   )
 
-  const columnDefs: ColDef<FileEntry>[] = useMemo(
-    () => [
+  const columnDefs = useMemo(
+    (): ColDef<FileEntry>[] => [
       {
         headerName: '',
         width: 50,

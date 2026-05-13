@@ -52,7 +52,6 @@ export default observer(function ToolbarComponent() {
   }
 
   const handleClean = () => {
-    if (store.selectedCount === 0) return
     setShowConfirm(true)
   }
 

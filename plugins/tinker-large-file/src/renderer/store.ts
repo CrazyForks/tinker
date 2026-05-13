@@ -93,7 +93,9 @@ class Store extends BaseStore {
 
     runInAction(() => {
       const failSet = new Set(result.errors)
-      this.largeFiles = this.largeFiles.filter((f) => failSet.has(f.path))
+      this.largeFiles = this.largeFiles.filter(
+        (f) => !this.selectedFiles.has(f.path) || failSet.has(f.path)
+      )
       this.selectedFiles = new Set()
     })
     return result
@@ -149,14 +151,12 @@ class Store extends BaseStore {
   }
 
   cancelScan() {
-    runInAction(() => {
-      if (this.scanTask) {
-        this.scanTask.kill()
-        this.scanTask = null
-      }
-      this.view = 'open'
-      this.scanProgress = null
-    })
+    if (this.scanTask) {
+      this.scanTask.kill()
+      this.scanTask = null
+    }
+    this.view = 'open'
+    this.scanProgress = null
   }
 
   reset() {

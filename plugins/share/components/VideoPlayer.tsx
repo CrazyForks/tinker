@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react'
+import {
+  forwardRef,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import {
   Container,
   usePlayer,
@@ -118,6 +124,35 @@ const THEME_STYLES = `
   --media-surface-shadow-color: rgba(0, 0, 0, 0.3);
   --media-border-color: rgba(74, 74, 74, 0.5);
 }
+.media-controls--compact {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 4px;
+  padding: 4px !important;
+}
+.media-controls--compact > * {
+  display: contents;
+}
+.media-controls--compact .media-button--play {
+  flex-shrink: 0;
+  order: -1;
+}
+.media-controls--compact .media-time-controls {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  overflow: hidden;
+  width: 0;
+  order: 0;
+}
+.media-controls--compact .media-button--fullscreen {
+  flex-shrink: 0;
+  order: 1;
+}
+.media-controls--compact .media-slider {
+  flex: 1 1 0;
+  min-width: 0;
+}
 `
 
 let styleInjected = false
@@ -208,6 +243,21 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 
   injectStyles()
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [compact, setCompact] = useState(false)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setCompact(entry.contentRect.width < 400)
+      }
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   const t = createT(locale)
   const disabledClass = disabled ? 'opacity-30 pointer-events-none' : ''
 
@@ -217,234 +267,300 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   }
 
   return (
-    <Container
-      className={`media-default-skin media-default-skin--video ${
-        className || ''
-      }`}
-      {...rest}
-    >
-      {children}
-      {poster && <Poster src={poster} />}
-      <BufferingIndicator
-        render={(p) => (
-          <div {...p} className="media-buffering-indicator">
-            <div className="media-surface">
-              <Loader2 className="media-icon animate-spin" size={24} />
-            </div>
-          </div>
-        )}
-      />
-      <ErrorDialog.Root>
-        <AlertDialog.Popup className="media-error">
-          <div className="media-error__dialog media-surface">
-            <div className="media-error__content">
-              <AlertDialog.Title className="media-error__title">
-                {t('errorTitle')}
-              </AlertDialog.Title>
-              <ErrorDialog.Description className="media-error__description" />
-            </div>
-            <div className="media-error__actions">
-              <AlertDialog.Close className="media-button media-button--primary">
-                {t('ok')}
-              </AlertDialog.Close>
-            </div>
-          </div>
-        </AlertDialog.Popup>
-      </ErrorDialog.Root>
-      <Controls.Root className="media-surface media-controls">
-        <Tooltip.Provider>
-          <div className={`media-button-group ${disabledClass}`}>
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <PlayButton
-                    className="media-button--play"
-                    render={<Button />}
-                    label={playLabel}
-                  >
-                    <RotateCcw
-                      className="media-icon media-icon--restart"
-                      size={ICON_SIZE}
-                    />
-                    <Play
-                      className="media-icon media-icon--play"
-                      size={ICON_SIZE}
-                    />
-                    <Pause
-                      className="media-icon media-icon--pause"
-                      size={ICON_SIZE}
-                    />
-                  </PlayButton>
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip" />
-            </Tooltip.Root>
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <SeekButton
-                    seconds={-SEEK_TIME}
-                    className="media-button--seek"
-                    render={<Button />}
-                    label={() => t('seekBackward', { seconds: SEEK_TIME })}
-                  >
-                    <SkipBack
-                      className="media-icon media-icon--seek"
-                      size={ICON_SIZE}
-                    />
-                  </SeekButton>
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip">
-                {t('seekBackward', { seconds: SEEK_TIME })}
-              </Tooltip.Popup>
-            </Tooltip.Root>
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <SeekButton
-                    seconds={SEEK_TIME}
-                    className="media-button--seek"
-                    render={<Button />}
-                    label={() => t('seekForward', { seconds: SEEK_TIME })}
-                  >
-                    <SkipForward
-                      className="media-icon media-icon--seek"
-                      size={ICON_SIZE}
-                    />
-                  </SeekButton>
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip">
-                {t('seekForward', { seconds: SEEK_TIME })}
-              </Tooltip.Popup>
-            </Tooltip.Root>
-          </div>
-          <div className={`media-time-controls ${disabledClass}`}>
-            <Time.Value type="current" className="media-time" />
-            <TimeSlider.Root className="media-slider">
-              <Slider.Track className="media-slider__track">
-                <Slider.Fill className="media-slider__fill" />
-                <Slider.Buffer className="media-slider__buffer" />
-              </Slider.Track>
-              <Slider.Thumb className="media-slider__thumb" />
-              <div className="media-surface media-preview media-slider__preview">
-                <Slider.Thumbnail className="media-preview__thumbnail" />
-                <Slider.Value
-                  type="pointer"
-                  className="media-time media-preview__time"
-                />
-                <Loader2 className="media-preview__spinner media-icon" />
+    <div ref={containerRef} className="w-full h-full">
+      <Container
+        className={`media-default-skin media-default-skin--video ${
+          className || ''
+        }`}
+        {...rest}
+      >
+        {children}
+        {poster && <Poster src={poster} />}
+        <BufferingIndicator
+          render={(p) => (
+            <div {...p} className="media-buffering-indicator">
+              <div className="media-surface">
+                <Loader2 className="media-icon animate-spin" size={24} />
               </div>
-            </TimeSlider.Root>
-            <Time.Value type="duration" className="media-time" />
-          </div>
-          <div className="media-button-group">
-            {onTogglePlaylist && (
+            </div>
+          )}
+        />
+        <ErrorDialog.Root>
+          <AlertDialog.Popup className="media-error">
+            <div className="media-error__dialog media-surface">
+              <div className="media-error__content">
+                <AlertDialog.Title className="media-error__title">
+                  {t('errorTitle')}
+                </AlertDialog.Title>
+                <ErrorDialog.Description className="media-error__description" />
+              </div>
+              <div className="media-error__actions">
+                <AlertDialog.Close className="media-button media-button--primary">
+                  {t('ok')}
+                </AlertDialog.Close>
+              </div>
+            </div>
+          </AlertDialog.Popup>
+        </ErrorDialog.Root>
+        <Controls.Root
+          className={`media-surface media-controls${
+            compact ? ' media-controls--compact' : ''
+          }`}
+        >
+          <Tooltip.Provider>
+            {!compact && (
+              <div className={`media-button-group ${disabledClass}`}>
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <PlayButton
+                        className="media-button--play"
+                        render={<Button />}
+                        label={playLabel}
+                      >
+                        <RotateCcw
+                          className="media-icon media-icon--restart"
+                          size={ICON_SIZE}
+                        />
+                        <Play
+                          className="media-icon media-icon--play"
+                          size={ICON_SIZE}
+                        />
+                        <Pause
+                          className="media-icon media-icon--pause"
+                          size={ICON_SIZE}
+                        />
+                      </PlayButton>
+                    }
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip" />
+                </Tooltip.Root>
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <SeekButton
+                        seconds={-SEEK_TIME}
+                        className="media-button--seek"
+                        render={<Button />}
+                        label={() => t('seekBackward', { seconds: SEEK_TIME })}
+                      >
+                        <SkipBack
+                          className="media-icon media-icon--seek"
+                          size={ICON_SIZE}
+                        />
+                      </SeekButton>
+                    }
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip">
+                    {t('seekBackward', { seconds: SEEK_TIME })}
+                  </Tooltip.Popup>
+                </Tooltip.Root>
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <SeekButton
+                        seconds={SEEK_TIME}
+                        className="media-button--seek"
+                        render={<Button />}
+                        label={() => t('seekForward', { seconds: SEEK_TIME })}
+                      >
+                        <SkipForward
+                          className="media-icon media-icon--seek"
+                          size={ICON_SIZE}
+                        />
+                      </SeekButton>
+                    }
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip">
+                    {t('seekForward', { seconds: SEEK_TIME })}
+                  </Tooltip.Popup>
+                </Tooltip.Root>
+              </div>
+            )}
+            {compact && (
               <Tooltip.Root side="top">
                 <Tooltip.Trigger
                   render={
-                    <Button onClick={onTogglePlaylist}>
-                      <ListVideo className="media-icon" size={ICON_SIZE} />
-                    </Button>
+                    <PlayButton
+                      className="media-button--play"
+                      render={<Button />}
+                      label={playLabel}
+                    >
+                      <RotateCcw
+                        className="media-icon media-icon--restart"
+                        size={ICON_SIZE}
+                      />
+                      <Play
+                        className="media-icon media-icon--play"
+                        size={ICON_SIZE}
+                      />
+                      <Pause
+                        className="media-icon media-icon--pause"
+                        size={ICON_SIZE}
+                      />
+                    </PlayButton>
                   }
                 />
-                <Tooltip.Popup className="media-surface media-tooltip">
-                  {t('playlist')}
-                </Tooltip.Popup>
+                <Tooltip.Popup className="media-surface media-tooltip" />
               </Tooltip.Root>
             )}
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <PlaybackRateButton
-                    className="media-button--playback-rate"
-                    render={<Button />}
+            <div className={`media-time-controls ${disabledClass}`}>
+              {!compact && <Time.Value type="current" className="media-time" />}
+              <TimeSlider.Root className="media-slider">
+                <Slider.Track className="media-slider__track">
+                  <Slider.Fill className="media-slider__fill" />
+                  <Slider.Buffer className="media-slider__buffer" />
+                </Slider.Track>
+                <Slider.Thumb className="media-slider__thumb" />
+                <div className="media-surface media-preview media-slider__preview">
+                  <Slider.Thumbnail className="media-preview__thumbnail" />
+                  <Slider.Value
+                    type="pointer"
+                    className="media-time media-preview__time"
                   />
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip">
-                {t('togglePlaybackRate')}
-              </Tooltip.Popup>
-            </Tooltip.Root>
-            <VolumePopover t={t} />
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <CaptionsButton
-                    className="media-button--captions"
-                    render={<Button />}
-                    label={(state: { subtitlesShowing: boolean }) =>
-                      state.subtitlesShowing
-                        ? t('disableCaptions')
-                        : t('enableCaptions')
+                  <Loader2 className="media-preview__spinner media-icon" />
+                </div>
+              </TimeSlider.Root>
+              {!compact && (
+                <Time.Value type="duration" className="media-time" />
+              )}
+            </div>
+            {!compact && (
+              <div className="media-button-group">
+                {onTogglePlaylist && (
+                  <Tooltip.Root side="top">
+                    <Tooltip.Trigger
+                      render={
+                        <Button onClick={onTogglePlaylist}>
+                          <ListVideo className="media-icon" size={ICON_SIZE} />
+                        </Button>
+                      }
+                    />
+                    <Tooltip.Popup className="media-surface media-tooltip">
+                      {t('playlist')}
+                    </Tooltip.Popup>
+                  </Tooltip.Root>
+                )}
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <PlaybackRateButton
+                        className="media-button--playback-rate"
+                        render={<Button />}
+                      />
                     }
-                  >
-                    <Subtitles
-                      className="media-icon media-icon--captions-off"
-                      size={ICON_SIZE}
-                    />
-                    <Subtitles
-                      className="media-icon media-icon--captions-on"
-                      size={ICON_SIZE}
-                    />
-                  </CaptionsButton>
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip" />
-            </Tooltip.Root>
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <PiPButton
-                    className="media-button--pip"
-                    render={<Button />}
-                    label={(state: { pip: boolean }) =>
-                      state.pip ? t('exitPip') : t('enterPip')
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip">
+                    {t('togglePlaybackRate')}
+                  </Tooltip.Popup>
+                </Tooltip.Root>
+                <VolumePopover t={t} />
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <CaptionsButton
+                        className="media-button--captions"
+                        render={<Button />}
+                        label={(state: { subtitlesShowing: boolean }) =>
+                          state.subtitlesShowing
+                            ? t('disableCaptions')
+                            : t('enableCaptions')
+                        }
+                      >
+                        <Subtitles
+                          className="media-icon media-icon--captions-off"
+                          size={ICON_SIZE}
+                        />
+                        <Subtitles
+                          className="media-icon media-icon--captions-on"
+                          size={ICON_SIZE}
+                        />
+                      </CaptionsButton>
                     }
-                  >
-                    <PictureInPicture2
-                      className="media-icon media-icon--pip-enter"
-                      size={ICON_SIZE}
-                    />
-                    <PictureInPicture2
-                      className="media-icon media-icon--pip-exit"
-                      size={ICON_SIZE}
-                    />
-                  </PiPButton>
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip" />
-            </Tooltip.Root>
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <FullscreenButton
-                    className="media-button--fullscreen"
-                    render={<Button />}
-                    label={(state: { fullscreen: boolean }) =>
-                      state.fullscreen
-                        ? t('exitFullscreen')
-                        : t('enterFullscreen')
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip" />
+                </Tooltip.Root>
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <PiPButton
+                        className="media-button--pip"
+                        render={<Button />}
+                        label={(state: { pip: boolean }) =>
+                          state.pip ? t('exitPip') : t('enterPip')
+                        }
+                      >
+                        <PictureInPicture2
+                          className="media-icon media-icon--pip-enter"
+                          size={ICON_SIZE}
+                        />
+                        <PictureInPicture2
+                          className="media-icon media-icon--pip-exit"
+                          size={ICON_SIZE}
+                        />
+                      </PiPButton>
                     }
-                  >
-                    <Maximize
-                      className="media-icon media-icon--fullscreen-enter"
-                      size={ICON_SIZE}
-                    />
-                    <Minimize
-                      className="media-icon media-icon--fullscreen-exit"
-                      size={ICON_SIZE}
-                    />
-                  </FullscreenButton>
-                }
-              />
-              <Tooltip.Popup className="media-surface media-tooltip" />
-            </Tooltip.Root>
-          </div>
-        </Tooltip.Provider>
-      </Controls.Root>
-      <div className="media-overlay" />
-    </Container>
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip" />
+                </Tooltip.Root>
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <FullscreenButton
+                        className="media-button--fullscreen"
+                        render={<Button />}
+                        label={(state: { fullscreen: boolean }) =>
+                          state.fullscreen
+                            ? t('exitFullscreen')
+                            : t('enterFullscreen')
+                        }
+                      >
+                        <Maximize
+                          className="media-icon media-icon--fullscreen-enter"
+                          size={ICON_SIZE}
+                        />
+                        <Minimize
+                          className="media-icon media-icon--fullscreen-exit"
+                          size={ICON_SIZE}
+                        />
+                      </FullscreenButton>
+                    }
+                  />
+                  <Tooltip.Popup className="media-surface media-tooltip" />
+                </Tooltip.Root>
+              </div>
+            )}
+            {compact && (
+              <Tooltip.Root side="top">
+                <Tooltip.Trigger
+                  render={
+                    <FullscreenButton
+                      className="media-button--fullscreen"
+                      render={<Button />}
+                      label={(state: { fullscreen: boolean }) =>
+                        state.fullscreen
+                          ? t('exitFullscreen')
+                          : t('enterFullscreen')
+                      }
+                    >
+                      <Maximize
+                        className="media-icon media-icon--fullscreen-enter"
+                        size={ICON_SIZE}
+                      />
+                      <Minimize
+                        className="media-icon media-icon--fullscreen-exit"
+                        size={ICON_SIZE}
+                      />
+                    </FullscreenButton>
+                  }
+                />
+                <Tooltip.Popup className="media-surface media-tooltip" />
+              </Tooltip.Root>
+            )}
+          </Tooltip.Provider>
+        </Controls.Root>
+        <div className="media-overlay" />
+      </Container>
+    </div>
   )
 }

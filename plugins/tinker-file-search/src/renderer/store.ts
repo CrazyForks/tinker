@@ -16,7 +16,7 @@ class Store extends BaseStore {
   iconCache: Map<string, string> = new Map()
   moveToTrash: boolean = localStore.get('moveToTrash') !== false
   pendingDeletePath: string | null = null
-  showPreview: boolean = localStore.get('showPreview') === true
+  showPreview: boolean = localStore.get('showPreview') !== false
   selectedFile: FileResult | null = null
 
   private debounceSearch = debounce(() => this.search(), 300)
@@ -37,6 +37,13 @@ class Store extends BaseStore {
       this.currentTask.kill()
       this.currentTask = null
     }
+  }
+
+  private resetSearchState(results: FileResult[] = [], hasMore = false) {
+    this.results = results
+    this.hasMore = hasMore
+    this.searching = false
+    this.currentTask = null
   }
 
   async search() {
@@ -60,17 +67,11 @@ class Store extends BaseStore {
     try {
       const results = await task
       runInAction(() => {
-        this.results = results
-        this.hasMore = results.length >= MAX_RESULTS
-        this.searching = false
-        this.currentTask = null
+        this.resetSearchState(results, results.length >= MAX_RESULTS)
       })
     } catch {
       runInAction(() => {
-        this.results = []
-        this.hasMore = false
-        this.searching = false
-        this.currentTask = null
+        this.resetSearchState()
       })
     }
   }
@@ -91,10 +92,10 @@ class Store extends BaseStore {
     try {
       const results = await task
       runInAction(() => {
-        this.results = [...this.results, ...results]
-        this.hasMore = results.length >= MAX_RESULTS
-        this.searching = false
-        this.currentTask = null
+        this.resetSearchState(
+          [...this.results, ...results],
+          results.length >= MAX_RESULTS
+        )
       })
     } catch {
       runInAction(() => {

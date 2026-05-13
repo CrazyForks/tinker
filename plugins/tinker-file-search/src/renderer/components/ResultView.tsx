@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useEffect } from 'react'
 import type {
   ColDef,
   ICellRendererParams,
@@ -11,6 +11,7 @@ import type {
 } from 'ag-grid-community'
 import fileSize from 'licia/fileSize'
 import dateFormat from 'licia/dateFormat'
+import splitPath from 'licia/splitPath'
 import Grid from 'share/components/Grid'
 import Dialog, { DialogButton } from 'share/components/Dialog'
 import Checkbox from 'share/components/Checkbox'
@@ -31,7 +32,7 @@ const NameCell = observer(function NameCell({
   }, [data.path])
 
   const icon = store.iconCache.get(data.path)
-  const name = data.path.split(/[\\/]/).pop() || data.path
+  const name = splitPath(data.path).name
 
   return (
     <div className="flex items-center gap-2">
@@ -48,7 +49,7 @@ const NameCell = observer(function NameCell({
 const PathCell = ({ data }: ICellRendererParams<FileResult>) => {
   if (!data) return null
 
-  const dir = data.path.replace(/[\\/][^\\/]+$/, '')
+  const dir = splitPath(data.path).dir
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -187,7 +188,7 @@ export default observer(function ResultView() {
   }, [t])
 
   const pendingFileName = store.pendingDeletePath
-    ? store.pendingDeletePath.split(/[\\/]/).pop()
+    ? splitPath(store.pendingDeletePath).name
     : ''
 
   return (

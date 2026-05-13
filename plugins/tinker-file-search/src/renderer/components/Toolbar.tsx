@@ -1,8 +1,14 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { Toolbar, ToolbarSearch, ToolbarSpacer } from 'share/components/Toolbar'
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarSearch,
+  ToolbarSpacer,
+  TOOLBAR_ICON_SIZE,
+} from 'share/components/Toolbar'
 import { LoadingCircle } from 'share/components/Loading'
-import Checkbox from 'share/components/Checkbox'
+import { PanelRight } from 'lucide-react'
 import store from '../store'
 
 export default observer(function ToolbarComponent() {
@@ -17,12 +23,14 @@ export default observer(function ToolbarComponent() {
       />
       {store.searching && <LoadingCircle className="w-5 h-5 ml-1" />}
       <ToolbarSpacer />
-      <Checkbox
-        checked={store.showPreview}
-        onChange={(checked) => store.setShowPreview(checked)}
+      <ToolbarButton
+        variant="toggle"
+        active={store.showPreview}
+        onClick={() => store.setShowPreview(!store.showPreview)}
+        title={t('preview')}
       >
-        {t('preview')}
-      </Checkbox>
+        <PanelRight size={TOOLBAR_ICON_SIZE} />
+      </ToolbarButton>
     </Toolbar>
   )
 })

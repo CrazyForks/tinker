@@ -89,12 +89,9 @@ class Store extends BaseStore {
   } | null> {
     const paths = Array.from(this.selectedFiles)
     if (paths.length === 0) return null
-    try {
-      const result = await duplicateCleaner.deleteFiles(paths, this.moveToTrash)
-      return result
-    } catch {
-      return null
-    }
+    return duplicateCleaner
+      .deleteFiles(paths, this.moveToTrash)
+      .catch(() => null)
   }
 
   get filteredGroups(): DuplicateGroup[] {

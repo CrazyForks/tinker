@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import fileSize from 'licia/fileSize'
 import fileUrl from 'licia/fileUrl'
 import dateFormat from 'licia/dateFormat'
+import { createPlayer } from '@videojs/react'
+import { Video, videoFeatures } from '@videojs/react/video'
+import VideoPlayer from './VideoPlayer'
 import { tw } from '../theme'
 import { getFileCategory, getFileIcon } from '../lib/util'
 
@@ -48,6 +51,7 @@ export default function FilePreview({
   const t = BUILT_IN_TRANSLATIONS[locale] || BUILT_IN_TRANSLATIONS['en-US']
   const [icon, setIcon] = useState<string | undefined>(undefined)
   const [fstat, setFstat] = useState<FileStat | undefined>(undefined)
+  const [imgFailed, setImgFailed] = useState(false)
 
   useEffect(() => {
     if (!path) return
@@ -56,6 +60,7 @@ export default function FilePreview({
       setIcon(iconCache.get(path))
     } else {
       setIcon(undefined)
+      setImgFailed(false)
       getFileIcon(path).then((result) => {
         if (result) {
           iconCache.set(path, result)
@@ -96,26 +101,35 @@ export default function FilePreview({
   const name = path.split(/[\\/]/).pop() || path
   const dir = path.replace(/[\\/][^\\/]+$/, '')
   const isImage = getFileCategory(path) === 'image'
+  const isVideo = getFileCategory(path) === 'video'
+  const url = fileUrl(path)
 
   return (
     <div
       className={`w-[280px] border-l ${tw.border} flex flex-col overflow-hidden`}
     >
-      <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
-        {isImage ? (
+      <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
+        {isImage && !imgFailed ? (
           <img
-            src={fileUrl(path)}
+            src={url}
             alt={name}
             className="max-w-full max-h-full object-contain"
+            onError={() => setImgFailed(true)}
           />
+        ) : isVideo ? (
+          <VideoPreview src={url} locale={locale} />
         ) : icon ? (
           <img src={icon} alt="" className="w-16 h-16" />
         ) : (
           <div className="w-16 h-16" />
         )}
       </div>
+      <div
+        className={`text-center text-sm font-medium ${tw.text.primary} px-4 pt-2 pb-1 truncate`}
+      >
+        {name}
+      </div>
       <div className={`p-4 space-y-2`}>
-        <InfoRow label={t.name} value={name} />
         <InfoRow label={t.path} value={dir} />
         {fstat && (
           <>
@@ -141,9 +155,28 @@ export default function FilePreview({
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-xs leading-5">
-      <span className={`${tw.text.secondary} mr-1`}>{label}</span>
-      <span className={`${tw.text.primary} break-all`}>{value}</span>
+    <div className="text-xs leading-5 flex min-w-0">
+      <span className={`${tw.text.secondary} mr-1 shrink-0`}>{label}</span>
+      <span className={`${tw.text.primary} truncate`}>{value}</span>
     </div>
+  )
+}
+
+function VideoPreview({ src, locale }: { src: string; locale: string }) {
+  const { Container, Provider } = useMemo(() => {
+    const { Container, Provider } = createPlayer({
+      features: videoFeatures,
+    })
+    return { Container, Provider }
+  }, [])
+
+  return (
+    <Provider>
+      <Container className="w-full h-full">
+        <VideoPlayer locale={locale}>
+          <Video src={src} />
+        </VideoPlayer>
+      </Container>
+    </Provider>
   )
 }

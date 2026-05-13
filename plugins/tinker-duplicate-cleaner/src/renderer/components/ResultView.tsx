@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { useMemo, useCallback, useState } from 'react'
+import { useMemo, useCallback, useState, useEffect } from 'react'
 import type {
   ColDef,
   ICellRendererParams,
   IsFullWidthRowParams,
+  IRowNode,
   RowClickedEvent,
   SelectionChangedEvent,
 } from 'ag-grid-community'
@@ -132,7 +133,7 @@ interface GroupCellProps {
 
 function GroupCellRenderer({ data, expanded }: GroupCellProps) {
   const Icon = expanded ? ChevronDown : ChevronRight
-  const totalSize = data.size * data.count
+  const totalSize = data.size * (data.count - 1)
   return (
     <div className="flex items-center gap-2 px-3 h-full cursor-pointer select-none">
       <Icon size={14} className="flex-shrink-0" />
@@ -168,15 +169,15 @@ export default observer(function ResultView() {
     [store.filteredGroups, expandedGroups]
   )
 
-  const columnDefs: ColDef<RowData>[] = useMemo(
-    () => [
+  const columnDefs = useMemo(
+    (): ColDef<RowData>[] => [
       {
         headerName: '',
         width: 50,
         sortable: false,
         cellRenderer: CheckboxCell,
         suppressMovable: true,
-        cellStyle: { paddingRight: 0 },
+        cellStyle: { paddingRight: 0 } as const,
       },
       {
         field: 'name' as const,
@@ -185,7 +186,7 @@ export default observer(function ResultView() {
         minWidth: 150,
         sortable: false,
         cellRenderer: NameCell,
-        cellStyle: { paddingLeft: 0 },
+        cellStyle: { paddingLeft: 0 } as const,
       },
       {
         field: 'path' as const,
@@ -200,7 +201,7 @@ export default observer(function ResultView() {
         headerName: t('fileSize'),
         width: 120,
         sortable: false,
-        cellStyle: { textAlign: 'right' },
+        cellStyle: { textAlign: 'right' } as const,
         valueFormatter: (params) =>
           params.data && !isGroupRow(params.data) ? fileSize(params.value) : '',
       },
@@ -210,6 +211,11 @@ export default observer(function ResultView() {
 
   const getRowId = useCallback(
     (params: { data: RowData }) => params.data.id,
+    []
+  )
+
+  const isRowSelectable = useCallback(
+    (node: IRowNode<RowData>) => !!node.data && !isGroupRow(node.data),
     []
   )
 
@@ -260,6 +266,7 @@ export default observer(function ResultView() {
             mode: 'singleRow',
             checkboxes: false,
             enableClickSelection: true,
+            isRowSelectable,
           }}
           onSelectionChanged={onSelectionChanged}
           isFullWidthRow={isFullWidthRow}
