@@ -7,13 +7,15 @@ const external = builtinModules.filter((e) => !e.startsWith('_'))
 external.push(
   'electron',
   'ffmpeg-static',
+  'fs-extra',
   'licia',
   ...external.map((m) => `node:${m}`)
 )
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist/preload',
+    minify: mode === 'development' ? false : 'esbuild',
     lib: {
       entry: [
         resolve(__dirname, 'src/preload/index.ts'),
@@ -24,10 +26,11 @@ export default defineConfig({
       formats: ['cjs'],
     },
     rollupOptions: {
-      external,
+      external: (id) =>
+        external.some((pkg) => id === pkg || id.startsWith(pkg + '/')),
     },
   },
   resolve: {
     alias,
   },
-})
+}))

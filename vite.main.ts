@@ -13,14 +13,17 @@ external.push(
   'registry-js',
   'file-icon',
   'npm',
+  'fs-extra',
+  'licia',
   ...external.map((m) => `node:${m}`)
 )
 
-export default defineConfig(async (): Promise<UserConfig> => {
+export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   const pkg = await fs.readJSON(path.resolve(__dirname, 'package.json'))
   return {
     build: {
       outDir: 'dist/main',
+      minify: mode === 'development' ? false : 'esbuild',
       lib: {
         entry: resolve(__dirname, 'src/main/index.ts'),
         name: 'Main',
@@ -28,7 +31,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
         formats: ['cjs'],
       },
       rollupOptions: {
-        external,
+        external: (id) =>
+          external.some((pkg) => id === pkg || id.startsWith(pkg + '/')),
       },
     },
     resolve: {

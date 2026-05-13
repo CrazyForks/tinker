@@ -28,7 +28,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
         formats: ['cjs'],
       },
       rollupOptions: {
-        external,
+        external: (id) =>
+          external.some((pkg) => id === pkg || id.startsWith(pkg + '/')),
       },
     },
   }

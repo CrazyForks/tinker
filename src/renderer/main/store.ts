@@ -303,10 +303,11 @@ class Store extends BaseStore {
       return
     }
 
+    const lowerFilter = lowerCase(filter).replace(/-/g, '')
     const matched = this.plugins.filter(
       (plugin) =>
         pinyinMatch(plugin.name, filter) ||
-        contain(plugin.id, lowerCase(filter))
+        contain(plugin.id.replace(/-/g, ''), lowerFilter)
     )
     const installed = matched.filter((plugin) => !plugin.marketplace)
     const marketplace = matched.filter((plugin) => plugin.marketplace)
