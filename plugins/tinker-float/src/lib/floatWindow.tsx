@@ -18,6 +18,7 @@ export function launchFloatWindow() {
       minHeight: store.minWindowHeight,
       alwaysOnTop: store.alwaysOnTop,
       webviewTag: store.contentType === 'url',
+      transparent: store.contentType === 'image',
     },
     (_popup, onClose) => (
       <FloatWindow

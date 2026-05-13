@@ -18,7 +18,11 @@ export default function FloatWindow({
   return (
     <div
       className={`h-screen overflow-hidden flex flex-col ${
-        contentType === 'video' ? 'bg-black' : tw.bg.primary
+        contentType === 'video'
+          ? 'bg-black'
+          : contentType === 'image'
+          ? 'bg-transparent'
+          : tw.bg.primary
       } relative`}
     >
       {contentType === 'url' && (

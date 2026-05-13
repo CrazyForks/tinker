@@ -8,6 +8,7 @@ export interface PopupWindowOptions {
   minHeight?: number
   alwaysOnTop?: boolean
   webviewTag?: boolean
+  transparent?: boolean
 }
 
 export function openPopupWindow(
@@ -21,6 +22,7 @@ export function openPopupWindow(
     minHeight,
     alwaysOnTop = true,
     webviewTag,
+    transparent = false,
   } = options
 
   const features = [
@@ -31,6 +33,7 @@ export function openPopupWindow(
     `alwaysOnTop=${alwaysOnTop}`,
     'frame=no',
     webviewTag ? 'webviewTag=true' : '',
+    transparent ? 'transparent=true' : '',
   ]
     .filter(Boolean)
     .join(',')
@@ -46,6 +49,10 @@ export function openPopupWindow(
   const container = popup.document.createElement('div')
   container.id = 'popup-root'
   popup.document.body.style.margin = '0'
+  if (transparent) {
+    popup.document.documentElement.style.backgroundColor = 'transparent'
+    popup.document.body.style.backgroundColor = 'transparent'
+  }
   popup.document.documentElement.className = document.documentElement.className
   popup.document.body.appendChild(container)
 
