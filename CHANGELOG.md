@@ -1,3 +1,8 @@
+## v1.14.0 (13 May 2026)
+
+* feat: add file search
+* feat(browser): screenshot
+
 ## v1.13.0 (5 May 2026)
 
 * feat: add cleaner
