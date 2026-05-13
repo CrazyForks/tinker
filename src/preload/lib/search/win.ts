@@ -1,7 +1,10 @@
 import { spawn, exec, ChildProcess } from 'child_process'
+import { pathExists, mkdirs, writeFile } from 'fs-extra'
+import { join } from 'path'
 import trim from 'licia/trim'
 import sleep from 'licia/sleep'
 import map from 'licia/map'
+import mainObj from 'share/preload/main'
 import { resolveResources } from '../util'
 import { SearchFileResult } from './index'
 
@@ -24,8 +27,17 @@ async function ensureEverythingRunning(): Promise<void> {
   const ready = await isEverythingReady()
   if (ready) return
 
+  const userData: string = await mainObj.getPath('userData')
+  const dataDir = join(userData, 'data/everything')
+  const iniPath = join(dataDir, 'Everything.ini')
+
+  if (!(await pathExists(iniPath))) {
+    await mkdirs(dataDir)
+    await writeFile(iniPath, '[Everything]\r\nshow_tray_icon=0\r\n')
+  }
+
   exec(
-    `powershell -Command "Start-Process -FilePath '${everythingPath}' -WindowStyle Hidden"`,
+    `powershell -Command "Start-Process -FilePath '${everythingPath}' -ArgumentList '-startup','-config','${iniPath}' -WindowStyle Hidden"`,
     { windowsHide: true }
   )
 
