@@ -1,6 +1,8 @@
 import { IApp, IPlugin, IPluginStates } from 'common/types'
 import { action, makeObservable, observable, runInAction } from 'mobx'
 import BaseStore from 'share/renderer/store/BaseStore'
+import contain from 'licia/contain'
+import lowerCase from 'licia/lowerCase'
 import find from 'licia/find'
 import trim from 'licia/trim'
 import isArr from 'licia/isArr'
@@ -301,8 +303,10 @@ class Store extends BaseStore {
       return
     }
 
-    const matched = this.plugins.filter((plugin) =>
-      pinyinMatch(plugin.name, filter)
+    const matched = this.plugins.filter(
+      (plugin) =>
+        pinyinMatch(plugin.name, filter) ||
+        contain(plugin.id, lowerCase(filter))
     )
     const installed = matched.filter((plugin) => !plugin.marketplace)
     const marketplace = matched.filter((plugin) => plugin.marketplace)
