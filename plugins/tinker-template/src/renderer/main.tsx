@@ -50,5 +50,4 @@ const App = observer(function App() {
   )
 })
 
-
 renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

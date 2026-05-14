@@ -7,7 +7,10 @@ interface Locales {
   'zh-CN': object
 }
 
-export default async function renderApp(App: React.ComponentType, locales: Locales) {
+export default async function renderApp(
+  App: React.ComponentType,
+  locales: Locales
+) {
   i18n.use(initReactI18next).init({
     resources: {
       'en-US': { translation: locales['en-US'] },
