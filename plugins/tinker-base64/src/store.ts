@@ -10,7 +10,7 @@ import dataUrl from 'licia/dataUrl'
 import mime from 'licia/mime'
 import { arrayBufferToBase64, base64ToUint8Array } from './lib/base64'
 import { encodeBytesBase64, encodeFileBase64 } from './lib/base64Worker'
-import i18n from './i18n'
+import i18n from 'i18next'
 
 type InputType = 'text' | 'file'
 

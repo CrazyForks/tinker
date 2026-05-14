@@ -1,18 +1,65 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
+import endWith from 'licia/endWith'
+import { tw } from 'share/theme'
+import TextEditor from './components/TextEditor'
+import TreeEditor from './components/TreeEditor'
+import Toolbar from './components/Toolbar'
+import store from './store'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+    }
 
-  createRoot(container).render(<App />)
-}
+    const handleDrop = async (e: DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
 
-;(async function () {
-  // Set language from tinker
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+      const files = e.dataTransfer?.files
+      if (!files || files.length === 0) return
 
-  renderApp()
-})()
+      const file = files[0]
+
+      if (!endWith(file.name, '.json')) {
+        console.warn('Only .json files are supported')
+        return
+      }
+
+      try {
+        const filePath = (file as File & { path?: string }).path
+        const content = await file.text()
+        store.loadFromFile(content, filePath)
+      } catch (err) {
+        console.error('Failed to read file:', err)
+      }
+    }
+
+    window.addEventListener('dragover', handleDragOver)
+    window.addEventListener('drop', handleDrop)
+
+    return () => {
+      window.removeEventListener('dragover', handleDragOver)
+      window.removeEventListener('drop', handleDrop)
+    }
+  }, [])
+
+  return (
+    <div className={`h-screen flex flex-col ${tw.bg.primary}`}>
+      <Toolbar />
+
+      <div className={`flex-1 overflow-hidden ${tw.bg.primary}`}>
+        {store.mode === 'text' ? <TextEditor /> : <TreeEditor />}
+      </div>
+    </div>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

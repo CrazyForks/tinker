@@ -1,17 +1,35 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { ConfirmProvider } from 'share/components/Confirm'
+import { ToasterProvider } from 'share/components/Toaster'
+import { tw } from 'share/theme'
+import Toolbar from './components/Toolbar'
+import DownloadList from './components/DownloadList'
+import AddDownloadModal from './components/AddDownloadModal'
+import store from './store'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { i18n } = useTranslation()
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <ConfirmProvider locale={i18n.language}>
+      <ToasterProvider>
+        <div className={`h-screen flex flex-col ${tw.bg.primary}`}>
+          <Toolbar />
+          <DownloadList />
+          <AddDownloadModal
+            visible={store.addModalVisible}
+            onClose={() => store.setAddModalVisible(false)}
+          />
+        </div>
+      </ToasterProvider>
+    </ConfirmProvider>
+  )
+})
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
 
-  renderApp()
-})()
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

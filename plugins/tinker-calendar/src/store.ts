@@ -15,7 +15,7 @@ import {
 } from './lib/date'
 import { getHolidaysForYearRange } from './lib/holidays'
 import * as db from './lib/db'
-import i18n from './i18n'
+import i18n from 'i18next'
 
 const storage = new LocalStore('tinker-calendar')
 const SIDEBAR_KEY = 'sidebar-open'

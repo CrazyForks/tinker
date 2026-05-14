@@ -1,17 +1,41 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
+import { AlertProvider } from 'share/components/Alert'
+import { tw } from 'share/theme'
+import store from './store'
+import Toolbar from './components/Toolbar'
+import Sidebar from './components/Sidebar'
+import CollageCanvas from './components/CollageCanvas'
+import { getTemplateById } from './lib/templates'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { i18n } = useTranslation()
 
-  createRoot(container).render(<App />)
-}
+  useEffect(() => {
+    const template = getTemplateById(store.selectedTemplateId)
+    if (template) {
+      store.setTemplate(template.id, template.areas)
+    }
+  }, [])
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+  return (
+    <AlertProvider locale={i18n.language}>
+      <div className={`h-screen flex flex-col ${tw.bg.primary}`}>
+        <Toolbar />
 
-  renderApp()
-})()
+        <div className="flex-1 flex overflow-hidden">
+          <Sidebar />
+          <CollageCanvas />
+        </div>
+      </div>
+    </AlertProvider>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

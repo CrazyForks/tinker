@@ -1,17 +1,43 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { tw } from 'share/theme'
+import store from './store'
+import InputFields from './components/InputFields'
+import PasswordSettings from './components/PasswordSettings'
+import CharacterTypesTable from './components/CharacterTypesTable'
+import GeneratedPassword from './components/GeneratedPassword'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const handleInputChange = () => {
+    if (store.phrase && store.service) {
+      try {
+        store.generatePassword()
+      } catch (error) {
+        console.error('Failed to generate password:', error)
+      }
+    } else {
+      store.generatedPassword = ''
+    }
+  }
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <div
+      className={`h-screen flex flex-col ${tw.bg.secondary} transition-colors`}
+    >
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto space-y-5">
+          <InputFields onInputChange={handleInputChange} />
+          <PasswordSettings onInputChange={handleInputChange} />
+          <CharacterTypesTable onInputChange={handleInputChange} />
+          <GeneratedPassword />
+        </div>
+      </div>
+    </div>
+  )
+})
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
 
-  renderApp()
-})()
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

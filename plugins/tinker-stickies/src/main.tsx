@@ -1,17 +1,73 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { Plus, FileText } from 'lucide-react'
+import { ConfirmProvider } from 'share/components/Confirm'
+import { ToasterProvider } from 'share/components/Toaster'
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarSpacer,
+  ToolbarSearch,
+  TOOLBAR_ICON_SIZE,
+} from 'share/components/Toolbar'
+import { tw } from 'share/theme'
+import renderApp from 'share/lib/renderApp'
+import store from './store'
+import StickyCard from './components/StickyCard'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { t, i18n } = useTranslation()
 
-  createRoot(container).render(<App />)
-}
+  const stickies = store.filteredStickies
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+  return (
+    <ConfirmProvider locale={i18n.language}>
+      <ToasterProvider>
+        <div className={`h-screen flex flex-col ${tw.bg.primary}`}>
+          <Toolbar>
+            <ToolbarSearch
+              value={store.searchQuery}
+              onChange={(v) => store.setSearchQuery(v)}
+              placeholder={t('searchPlaceholder')}
+            />
+            <ToolbarSpacer />
+            <ToolbarButton
+              onClick={() => store.addSticky()}
+              title={t('addSticky')}
+            >
+              <Plus size={TOOLBAR_ICON_SIZE} />
+            </ToolbarButton>
+          </Toolbar>
 
-  renderApp()
-})()
+          <div className="flex-1 overflow-y-auto p-4">
+            {stickies.length === 0 ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  <FileText
+                    size={48}
+                    className={`mx-auto ${tw.text.secondary} opacity-30 mb-3`}
+                  />
+                  <p className={`text-sm ${tw.text.secondary}`}>
+                    {store.searchQuery ? t('noSearchResults') : t('noStickies')}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
+                {stickies.map((sticky) => (
+                  <StickyCard key={sticky.id} sticky={sticky} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </ToasterProvider>
+    </ConfirmProvider>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

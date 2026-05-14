@@ -1,17 +1,21 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { Tldraw } from 'tldraw'
+import 'tldraw/tldraw.css'
+import ThemeSync from './components/ThemeSync'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  return (
+    <div className="h-screen w-screen">
+      <Tldraw persistenceKey="tinker-whiteboard">
+        <ThemeSync />
+      </Tldraw>
+    </div>
+  )
+})
 
-  createRoot(container).render(<App />)
-}
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
-
-  renderApp()
-})()
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

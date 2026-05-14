@@ -3,7 +3,7 @@ import type { RefObject } from 'react'
 import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
 import toast from 'react-hot-toast'
-import i18n from './i18n'
+import i18n from 'i18next'
 
 const STORAGE_KEY_SIZE = 'size'
 const STORAGE_KEY_FG_COLOR = 'fgColor'

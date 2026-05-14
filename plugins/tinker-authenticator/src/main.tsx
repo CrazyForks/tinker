@@ -1,17 +1,66 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { Lock } from 'lucide-react'
+import { ConfirmProvider } from 'share/components/Confirm'
+import { ToasterProvider } from 'share/components/Toaster'
+import { tw } from 'share/theme'
+import store from './store'
+import Toolbar from './components/Toolbar'
+import AccountCard from './components/AccountCard'
+import AddDialog from './components/AddDialog'
+import ImportDialog from './components/ImportDialog'
+import LockScreen from './components/LockScreen'
+import PasswordDialog from './components/PasswordDialog'
+import QRDialog from './components/QRDialog'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { t, i18n } = useTranslation()
+  const accounts = store.filteredAccounts
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <ConfirmProvider locale={i18n.language}>
+      <ToasterProvider>
+        {store.isLocked ? (
+          <LockScreen />
+        ) : (
+          <div
+            className={`h-screen flex flex-col transition-colors ${tw.bg.primary}`}
+          >
+            <Toolbar />
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+            <div className="flex-1 overflow-y-auto p-3">
+              {accounts.length === 0 ? (
+                <div
+                  className={`flex flex-col items-center justify-center h-full gap-2 ${tw.text.tertiary}`}
+                >
+                  <Lock size={40} />
+                  <p className="text-sm">
+                    {store.searchQuery ? t('noResults') : t('emptyHint')}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {accounts.map((account) => (
+                    <AccountCard key={account.id} account={account} />
+                  ))}
+                </div>
+              )}
+            </div>
 
-  renderApp()
-})()
+            <AddDialog />
+            <ImportDialog />
+            <PasswordDialog />
+            <QRDialog />
+          </div>
+        )}
+      </ToasterProvider>
+    </ConfirmProvider>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

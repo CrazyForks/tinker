@@ -4,7 +4,7 @@ import splitPath from 'licia/splitPath'
 import BaseStore from 'share/BaseStore'
 import { alert } from 'share/components/Alert'
 import type { MenuItemConstructorOptions } from 'electron'
-import i18n from './i18n'
+import i18n from 'i18next'
 import type { MindMapNode, MindMapInstance } from './types'
 
 const storage = new LocalStore('tinker-mind-map')

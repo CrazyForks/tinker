@@ -6,7 +6,7 @@ import { pdfjsLib } from './lib/pdfjs'
 import LocalStore from 'licia/LocalStore'
 import dataUrl from 'licia/dataUrl'
 import convertBin from 'licia/convertBin'
-import i18n from './i18n'
+import i18n from 'i18next'
 
 const storage = new LocalStore('tinker-pdf')
 const STORAGE_KEY_SIDEBAR_OPEN = 'sidebarOpen'

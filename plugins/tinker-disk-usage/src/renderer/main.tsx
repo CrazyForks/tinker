@@ -1,17 +1,31 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { ToasterProvider } from 'share/components/Toaster'
+import { tw } from 'share/theme'
+import store from './store'
+import FolderOpen from './components/FolderOpen'
+import ScanningView from './components/ScanningView'
+import ChartView from './components/ChartView'
+import Toolbar from './components/Toolbar'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  return (
+    <ToasterProvider>
+      <div
+        className={`h-screen flex flex-col transition-colors ${tw.bg.primary}`}
+      >
+        <Toolbar />
 
-  createRoot(container).render(<App />)
-}
+        {store.view === 'open' && <FolderOpen />}
+        {store.view === 'scanning' && <ScanningView />}
+        {store.view === 'chart' && <ChartView />}
+      </div>
+    </ToasterProvider>
+  )
+})
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
 
-  renderApp()
-})()
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

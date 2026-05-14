@@ -1,17 +1,40 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { ToasterProvider } from 'share/components/Toaster'
+import { tw } from 'share/theme'
+import FolderOpen from 'share/components/FolderOpen'
+import store from './store'
+import Toolbar from './components/Toolbar'
+import ScanningView from './components/ScanningView'
+import ResultView from './components/ResultView'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { t } = useTranslation()
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <ToasterProvider>
+      <div
+        className={`h-screen flex flex-col transition-colors ${tw.bg.primary}`}
+      >
+        <Toolbar />
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+        {store.view === 'open' && (
+          <FolderOpen
+            onOpenFolder={(path) => store.openDirectory(path)}
+            openTitle={t('openFolder')}
+            dropTitle={t('dropFolderHere')}
+          />
+        )}
+        {store.view === 'scanning' && <ScanningView />}
+        {store.view === 'result' && <ResultView />}
+      </div>
+    </ToasterProvider>
+  )
+})
 
-  renderApp()
-})()
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

@@ -12,7 +12,7 @@ import convertBin from 'licia/convertBin'
 import store from '../store'
 import NewTabPage from './NewTabPage'
 import DevToolsPanel from './DevToolsPanel'
-import i18n from '../i18n'
+import i18n from 'i18next'
 
 interface ContextMenuParams {
   x: number

@@ -1,17 +1,57 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
+import { ToasterProvider } from 'share/components/Toaster'
+import { ConfirmProvider } from 'share/components/Confirm'
+import { tw } from 'share/theme'
+import store from './store'
+import Sidebar from './components/Sidebar'
+import AppearanceSection from './components/AppearanceSection'
+import StartupSection from './components/StartupSection'
+import WindowSection from './components/WindowSection'
+import AiView from './components/AiView'
+import PluginSection from './components/PluginSection'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  useEffect(() => {
+    store.loadSettings()
+  }, [])
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <ToasterProvider>
+      <ConfirmProvider>
+        <div
+          className={`h-screen flex flex-col transition-colors ${tw.bg.primary}`}
+        >
+          <div className={`border-t ${tw.border}`} />
+          <div className="flex flex-1 overflow-hidden">
+            <Sidebar />
+            {!store.isLoading && store.currentSection === 'general' && (
+              <div className="flex-1 overflow-y-auto px-6 pt-6 pb-6 space-y-6">
+                <AppearanceSection />
+                <StartupSection />
+                <WindowSection />
+              </div>
+            )}
+            {!store.isLoading && store.currentSection === 'ai' && (
+              <div className="flex-1 overflow-hidden">
+                <AiView />
+              </div>
+            )}
+            {!store.isLoading && store.currentSection === 'plugin' && (
+              <div className="flex-1 overflow-y-auto px-6 pt-6 pb-6 space-y-6">
+                <PluginSection />
+              </div>
+            )}
+          </div>
+        </div>
+      </ConfirmProvider>
+    </ToasterProvider>
+  )
+})
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
 
-  renderApp()
-})()
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

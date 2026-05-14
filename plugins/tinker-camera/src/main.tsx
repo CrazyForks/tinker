@@ -1,17 +1,74 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { RotateCw } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { ToasterProvider } from 'share/components/Toaster'
+import store from './store'
+import ControlBar from './components/ControlBar'
+import CameraVideo from './components/CameraVideo'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { t } = useTranslation()
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  createRoot(container).render(<App />)
-}
+  const startCamera = useCallback(async () => {
+    store.setLoading(true)
+    store.setError('')
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false,
+      })
 
-  renderApp()
-})()
+      store.setStream(stream)
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : t('cameraAccessError')
+      store.setError(errorMessage)
+
+      toast.error(errorMessage)
+    } finally {
+      store.setLoading(false)
+    }
+  }, [t])
+
+  useEffect(() => {
+    startCamera()
+
+    return () => {
+      store.stopStream()
+    }
+  }, [startCamera])
+
+  return (
+    <ToasterProvider>
+      <div className="h-screen w-screen flex items-center justify-center relative bg-black">
+        {store.isLoading && (
+          <div className="text-lg text-white">{t('loading')}</div>
+        )}
+
+        {store.error && (
+          <button
+            onClick={startCamera}
+            className="flex flex-col items-center gap-3 text-white hover:text-gray-300 transition-colors"
+          >
+            <RotateCw size={48} />
+            <span className="text-sm">{t('retry')}</span>
+          </button>
+        )}
+
+        <CameraVideo videoRef={videoRef} />
+        <ControlBar videoRef={videoRef} />
+      </div>
+    </ToasterProvider>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

@@ -1,18 +1,73 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { tw } from 'share/theme'
+import Toolbar from './components/Toolbar'
+import ImageOpen from 'share/components/ImageOpen'
+import ImageList from './components/ImageList'
+import CompareModal from './components/CompareModal'
+import store from './store'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { t } = useTranslation()
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
 
-  createRoot(container).render(<App />)
-}
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
 
-;(async function () {
-  // Set language from tinker
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+    const files = e.dataTransfer.files
+    if (!files || files.length === 0) return
 
-  renderApp()
-})()
+    const imageFiles = Array.from(files).filter((file) =>
+      file.type.startsWith('image/')
+    )
+    if (imageFiles.length === 0) {
+      return
+    }
+
+    try {
+      const fileArray = imageFiles.map((file) => {
+        // In Electron, the File object has a path property
+        const filePath = (file as File & { path?: string }).path
+        return { file, filePath }
+      })
+      await store.loadImages(fileArray)
+    } catch {
+      // loadImages handles errors internally
+    }
+  }
+
+  return (
+    <div
+      className={`h-screen flex flex-col ${tw.bg.primary}`}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <Toolbar />
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {!store.hasImages ? (
+          <ImageOpen
+            onOpenImage={() => store.openImageDialog()}
+            openTitle={t('openTitle')}
+            supportedFormats={t('supportedFormats')}
+          />
+        ) : (
+          <ImageList />
+        )}
+      </div>
+
+      <CompareModal />
+    </div>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

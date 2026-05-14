@@ -1,17 +1,64 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { AlertProvider } from 'share/components/Alert'
+import { tw } from 'share/theme'
+import store from './store'
+import HashResult from './components/HashResult'
+import HashToolbar from './components/Toolbar'
+import FileOpen from 'share/components/FileOpen'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { t, i18n } = useTranslation()
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <AlertProvider locale={i18n.language}>
+      <div
+        className={`h-screen flex flex-col transition-colors ${tw.bg.primary}`}
+      >
+        {/* Toolbar */}
+        <HashToolbar />
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
+        {/* Main Content */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Panel - Input */}
+          <div className={`w-2/5 flex flex-col ${tw.border} border-r`}>
+            {store.inputType === 'text' ? (
+              <div className="flex-1">
+                <textarea
+                  value={store.input}
+                  onChange={(e) => store.setInput(e.target.value)}
+                  placeholder={t('placeholder')}
+                  className={`w-full h-full p-4 resize-none outline-none overflow-x-hidden whitespace-pre-wrap break-words ${tw.bg.primary} ${tw.text.primary}`}
+                />
+              </div>
+            ) : (
+              <FileOpen
+                onOpenFile={(file) => store.handleFileOpen(file)}
+                openTitle={t('openFile')}
+                supportedFormats={t('allFiles')}
+                fileName={store.fileName}
+              />
+            )}
+          </div>
 
-  renderApp()
-})()
+          {/* Right Panel - Results */}
+          <div
+            className={`flex-1 p-4 ${tw.bg.tertiary} flex flex-col justify-evenly`}
+          >
+            <HashResult label="md5" value={store.hashResults.md5} />
+            <HashResult label="sha1" value={store.hashResults.sha1} />
+            <HashResult label="sha256" value={store.hashResults.sha256} />
+            <HashResult label="sha512" value={store.hashResults.sha512} />
+          </div>
+        </div>
+      </div>
+    </AlertProvider>
+  )
+})
+
+
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

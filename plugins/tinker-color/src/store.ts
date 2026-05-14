@@ -3,7 +3,7 @@ import BaseStore from 'share/BaseStore'
 import { ColorResult } from '@uiw/react-color'
 import toast from 'react-hot-toast'
 import LocalStore from 'licia/LocalStore'
-import i18n from './i18n'
+import i18n from 'i18next'
 import { hexToRgb, rgbToHsl, hslToRgb, rgbToHex } from './lib/util'
 
 const STORAGE_KEY = 'current'

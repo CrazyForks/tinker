@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 import Color from 'color'
 import { tw } from 'share/theme'
 import store from '../store'
-import i18n from '../i18n'
+import i18n from 'i18next'
 
 async function handleEyeDropper() {
   if (!('EyeDropper' in window)) {

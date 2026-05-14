@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx'
 import LocalStore from 'licia/LocalStore'
 import BaseStore from 'share/BaseStore'
 import toast from 'react-hot-toast'
-import i18n from './i18n'
+import i18n from 'i18next'
 
 export type EncodingType = 'url' | 'morse' | 'unicode'
 

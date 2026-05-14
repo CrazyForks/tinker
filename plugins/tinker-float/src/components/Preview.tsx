@@ -6,7 +6,7 @@ import { Video, videoFeatures } from '@videojs/react/video'
 import toast from 'react-hot-toast'
 import { tw } from 'share/theme'
 import VideoPlayer from 'share/components/VideoPlayer'
-import i18n from '../i18n'
+import i18n from 'i18next'
 import store from '../store'
 
 const { Provider, Container } = createPlayer({

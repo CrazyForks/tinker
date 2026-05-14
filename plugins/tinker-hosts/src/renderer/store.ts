@@ -6,7 +6,7 @@ import remove from 'licia/remove'
 import { HostsConfig } from '../common/types'
 import { ViewMode } from './types'
 import BaseStore from 'share/BaseStore'
-import i18n from './i18n'
+import i18n from 'i18next'
 
 const STORAGE_KEY_CONFIGS = 'configs'
 const STORAGE_KEY_ACTIVE_IDS = 'active-ids'

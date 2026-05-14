@@ -25,7 +25,7 @@ import { Snap } from 'leafer-x-easy-snap'
 import Magnifier from '../lib/Magnifier'
 import Mosaic from '../lib/Mosaic'
 import store from '../store'
-import i18n from '../i18n'
+import i18n from 'i18next'
 import { THEME_COLORS } from 'share/theme'
 const rotateIconUrl = new URL('../assets/rotate.svg', import.meta.url).href
 

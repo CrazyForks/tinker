@@ -1,17 +1,30 @@
-import App from './App'
-import { createRoot } from 'react-dom/client'
+import { observer } from 'mobx-react-lite'
+import { useTranslation } from 'react-i18next'
+import { AlertProvider } from 'share/components/Alert'
+import { tw } from 'share/theme'
+import Toolbar from './components/Toolbar'
+import ExpressionSection from './components/ExpressionSection'
+import TextSection from './components/TextSection'
+import renderApp from 'share/lib/renderApp'
 import './index.scss'
-import i18n from './i18n'
+import enUS from './i18n/en-US.json'
+import zhCN from './i18n/zh-CN.json'
 
-function renderApp() {
-  const container: HTMLElement = document.getElementById('app') as HTMLElement
+const App = observer(function App() {
+  const { i18n } = useTranslation()
 
-  createRoot(container).render(<App />)
-}
+  return (
+    <AlertProvider locale={i18n.language}>
+      <div
+        className={`h-screen flex flex-col ${tw.bg.primary} transition-colors`}
+      >
+        <Toolbar />
+        <ExpressionSection />
+        <TextSection />
+      </div>
+    </AlertProvider>
+  )
+})
 
-;(async function () {
-  const language = await tinker.getLanguage()
-  i18n.changeLanguage(language)
 
-  renderApp()
-})()
+renderApp(App, { 'en-US': enUS, 'zh-CN': zhCN })

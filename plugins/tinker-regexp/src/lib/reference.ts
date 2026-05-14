@@ -1,6 +1,6 @@
 // Reference content for regex tokens with i18n support
 import type { Token } from './ExpressionLexer'
-import i18n from '../i18n'
+import i18n from 'i18next'
 import capitalize from 'licia/capitalize'
 
 function fillTags(str: string, token: Token): string {

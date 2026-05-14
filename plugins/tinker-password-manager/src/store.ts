@@ -5,7 +5,7 @@ import lowerCase from 'licia/lowerCase'
 import splitPath from 'licia/splitPath'
 import BaseStore from 'share/BaseStore'
 import * as kdbxweb from 'kdbxweb'
-import i18n from './i18n'
+import i18n from 'i18next'
 import toast from 'react-hot-toast'
 import {
   convertGroup,

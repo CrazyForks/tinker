@@ -6,7 +6,7 @@ import type { AgentMessage, AgentTool } from 'share/lib/Agent'
 import { createWebSearchToolResult } from 'share/tools/web'
 import * as db from './lib/db'
 import { TOOLS } from './lib/tools'
-import i18n from './i18n'
+import i18n from 'i18next'
 import type { Session, SessionData } from './types'
 
 const storage = new LocalStore('tinker-ai-assistant')
