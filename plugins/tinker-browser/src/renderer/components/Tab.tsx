@@ -146,13 +146,13 @@ export default observer(function Tab({
 
   useEffect(() => {
     return () => {
-      // Cleanup if unmounted during drag
       dragState.current = null
     }
   }, [])
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault()
+    const wv = store.webviewRefs.get(tab.id)
     tinker.showContextMenu(e.clientX, e.clientY, [
       {
         label: t('addTabToRight'),
@@ -162,7 +162,6 @@ export default observer(function Tab({
       {
         label: t('reload'),
         click: () => {
-          const wv = store.webviewRefs.get(tab.id)
           if (wv) wv.reload()
         },
       },
@@ -171,12 +170,8 @@ export default observer(function Tab({
         click: () => store.addTab(tab.url, tab.id),
       },
       {
-        label: (() => {
-          const wv = store.webviewRefs.get(tab.id)
-          return wv && wv.isAudioMuted() ? t('unmuteSite') : t('muteSite')
-        })(),
+        label: wv && wv.isAudioMuted() ? t('unmuteSite') : t('muteSite'),
         click: () => {
-          const wv = store.webviewRefs.get(tab.id)
           if (wv) wv.setAudioMuted(!wv.isAudioMuted())
         },
       },

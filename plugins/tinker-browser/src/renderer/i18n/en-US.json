@@ -18,22 +18,5 @@
   "save": "Save",
   "cancel": "Cancel",
   "edit": "Edit",
-  "delete": "Delete",
-  "inspect": "Inspect Element",
-  "openLinkInNewTab": "Open Link in New Tab",
-  "copyLinkAddress": "Copy Link Address",
-  "openImageInNewTab": "Open Image in New Tab",
-  "copyImageAddress": "Copy Image Address",
-  "saveImageAs": "Save Image As...",
-  "saveAs": "Save As...",
-  "print": "Print",
-  "viewPageSource": "View Page Source",
-  "undo": "Undo",
-  "redo": "Redo",
-  "cut": "Cut",
-  "copy": "Copy",
-  "paste": "Paste",
-  "selectAll": "Select All",
-  "capture": "Capture Screenshot",
-  "captureFullPage": "Capture Full Page"
+  "delete": "Delete"
 }

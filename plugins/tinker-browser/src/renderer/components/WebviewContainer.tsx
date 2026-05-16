@@ -33,6 +33,13 @@ export default observer(function WebviewContainer() {
 
         const isActive = tab.id === store.activeTabId
 
+        const syncNavState = () => {
+          const h = webviewHandles.current.get(tab.id)
+          if (h) {
+            store.updateTabNavState(tab.id, h.canGoBack(), h.canGoForward())
+          }
+        }
+
         return (
           <div
             key={tab.id}
@@ -67,14 +74,7 @@ export default observer(function WebviewContainer() {
               onLoadStart={() => store.updateTabLoading(tab.id, true)}
               onLoadEnd={() => {
                 store.updateTabLoading(tab.id, false)
-                const h = webviewHandles.current.get(tab.id)
-                if (h) {
-                  store.updateTabNavState(
-                    tab.id,
-                    h.canGoBack(),
-                    h.canGoForward()
-                  )
-                }
+                syncNavState()
               }}
               onTitleChange={(title) => store.updateTabTitle(tab.id, title)}
               onFaviconChange={(favicons) => {
@@ -84,18 +84,10 @@ export default observer(function WebviewContainer() {
               }}
               onNavigate={(url) => {
                 store.updateTabUrl(tab.id, url)
-                const h = webviewHandles.current.get(tab.id)
-                if (h) {
-                  store.updateTabNavState(
-                    tab.id,
-                    h.canGoBack(),
-                    h.canGoForward()
-                  )
-                }
+                syncNavState()
               }}
               onNewWindow={(url) => store.addTab(url)}
               onDomReady={(wv) => {
-                store.webviewRefs.set(tab.id, wv)
                 wv.executeJavaScript(`
                   document.addEventListener('contextmenu', (e) => {
                     const selection = window.getSelection();

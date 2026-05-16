@@ -112,7 +112,7 @@ class Store extends BaseStore {
 
   private async fetchAndCacheFavicon(id: string, url: string) {
     let fullUrl = url
-    if (!startWith(fullUrl, 'http://') && !startWith(fullUrl, 'https://')) {
+    if (!startWith(fullUrl, ['http://', 'https://'])) {
       fullUrl = 'https://' + fullUrl
     }
     const data = await browser.fetchFavicon(fullUrl)
@@ -124,8 +124,17 @@ class Store extends BaseStore {
     }
   }
 
+  private getTab(id: string): ITab | undefined {
+    return this.tabs.find((t) => t.id === id)
+  }
+
+  private get activeWebview(): Electron.WebviewTag | undefined {
+    const tab = this.activeTab
+    return tab ? this.webviewRefs.get(tab.id) : undefined
+  }
+
   get activeTab(): ITab | undefined {
-    return this.tabs.find((t) => t.id === this.activeTabId)
+    return this.getTab(this.activeTabId)
   }
 
   get devToolsOpen(): boolean {
@@ -178,7 +187,7 @@ class Store extends BaseStore {
 
   setActiveTab(id: string) {
     this.activeTabId = id
-    const tab = this.tabs.find((t) => t.id === id)
+    const tab = this.getTab(id)
     if (tab) {
       this.addressBarValue = tab.url
     }
@@ -213,29 +222,23 @@ class Store extends BaseStore {
     let url = input.trim()
     if (!url) return
 
-    if (startWith(url, 'view-source:')) {
-      tab.url = url
-      this.addressBarValue = url
-      this.addressBarFocused = false
-      const webview = this.webviewRefs.get(tab.id)
-      if (webview) {
-        webview.loadURL(url)
+    if (!startWith(url, 'view-source:')) {
+      if (this.isValidUrl(url)) {
+        if (!startWith(url, ['http://', 'https://'])) {
+          url = 'https://' + url
+        }
+      } else {
+        url = DEFAULT_SEARCH_ENGINE + encodeURIComponent(url)
       }
-      return
     }
 
-    if (this.isValidUrl(url)) {
-      if (!startWith(url, 'http://') && !startWith(url, 'https://')) {
-        url = 'https://' + url
-      }
-    } else {
-      url = DEFAULT_SEARCH_ENGINE + encodeURIComponent(url)
-    }
+    this.commitNavigation(tab, url)
+  }
 
+  private commitNavigation(tab: ITab, url: string) {
     tab.url = url
     this.addressBarValue = url
     this.addressBarFocused = false
-
     const webview = this.webviewRefs.get(tab.id)
     if (webview) {
       webview.loadURL(url)
@@ -243,7 +246,7 @@ class Store extends BaseStore {
   }
 
   private isValidUrl(str: string): boolean {
-    if (startWith(str, 'http://') || startWith(str, 'https://')) return true
+    if (startWith(str, ['http://', 'https://'])) return true
     if (str.includes(' ')) return false
     if (str.includes('.')) return true
     if (startWith(str, 'localhost')) return true
@@ -251,22 +254,22 @@ class Store extends BaseStore {
   }
 
   updateTabTitle(tabId: string, title: string) {
-    const tab = this.tabs.find((t) => t.id === tabId)
+    const tab = this.getTab(tabId)
     if (tab) tab.title = title
   }
 
   updateTabFavicon(tabId: string, favicon: string) {
-    const tab = this.tabs.find((t) => t.id === tabId)
+    const tab = this.getTab(tabId)
     if (tab) tab.favicon = favicon
   }
 
   updateTabLoading(tabId: string, isLoading: boolean) {
-    const tab = this.tabs.find((t) => t.id === tabId)
+    const tab = this.getTab(tabId)
     if (tab) tab.isLoading = isLoading
   }
 
   updateTabUrl(tabId: string, url: string) {
-    const tab = this.tabs.find((t) => t.id === tabId)
+    const tab = this.getTab(tabId)
     if (tab) {
       if (
         startWith(tab.url, 'view-source:') &&
@@ -282,25 +285,26 @@ class Store extends BaseStore {
   }
 
   updateTabNavState(tabId: string, canGoBack: boolean, canGoForward: boolean) {
-    const tab = this.tabs.find((t) => t.id === tabId)
-    if (tab) {
+    const tab = this.getTab(tabId)
+    if (
+      tab &&
+      (tab.canGoBack !== canGoBack || tab.canGoForward !== canGoForward)
+    ) {
       tab.canGoBack = canGoBack
       tab.canGoForward = canGoForward
     }
   }
 
   goBack() {
-    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
-    if (wv) wv.goBack()
+    this.activeWebview?.goBack()
   }
 
   goForward() {
-    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
-    if (wv) wv.goForward()
+    this.activeWebview?.goForward()
   }
 
   reload() {
-    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
+    const wv = this.activeWebview
     if (wv) {
       if (this.activeTab?.isLoading) {
         wv.stop()
@@ -325,20 +329,20 @@ class Store extends BaseStore {
 
   toggleDevTools() {
     if (this.devToolsOpen) {
-      this.devToolsOpenTabs.delete(this.activeTabId)
+      this.closeDevTools()
     } else {
-      this.devToolsOpenTabs.add(this.activeTabId)
+      this.openDevTools()
     }
   }
 
   pendingInspect: { x: number; y: number } | null = null
 
   inspectElement(x: number, y: number) {
-    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
+    const wv = this.activeWebview
     if (!wv) return
 
     if (!this.devToolsOpen) {
-      this.devToolsOpenTabs.add(this.activeTabId)
+      this.openDevTools()
       this.pendingInspect = { x, y }
     } else {
       wv.inspectElement(x, y)
