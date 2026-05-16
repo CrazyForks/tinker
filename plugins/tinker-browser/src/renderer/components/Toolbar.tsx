@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import { ArrowLeft, ArrowRight, RefreshCw, X, Search } from 'lucide-react'
+import { ArrowLeft, ArrowRight, RotateCw, X, Search } from 'lucide-react'
 import { tw } from 'share/theme'
 import { useTranslation } from 'react-i18next'
 import {
@@ -54,7 +54,7 @@ export default observer(function ToolbarComponent() {
         {tab?.isLoading ? (
           <X size={TOOLBAR_ICON_SIZE} />
         ) : (
-          <RefreshCw size={TOOLBAR_ICON_SIZE} />
+          <RotateCw size={TOOLBAR_ICON_SIZE} />
         )}
       </ToolbarButton>
       <div className="flex-1 relative">
@@ -63,7 +63,7 @@ export default observer(function ToolbarComponent() {
           className={`absolute left-2 top-1/2 -translate-y-1/2 ${tw.text.tertiary}`}
         />
         <ToolbarTextInput
-          className={`w-full pl-7 pr-3 ${tw.primary.focusBorder}`}
+          className={`w-full pl-7 pr-3 !rounded-full ${tw.primary.focusBorder}`}
           value={store.addressBarValue}
           onChange={(e) => store.setAddressBarValue(e.target.value)}
           onKeyDown={handleKeyDown}
