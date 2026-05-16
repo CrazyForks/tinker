@@ -1,12 +1,9 @@
 import { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
+import { autorun } from 'mobx'
 import { X, PanelBottom, PanelLeft, PanelRight, LucideIcon } from 'lucide-react'
 import { tw } from 'share/theme'
 import store from '../store'
-
-interface DevToolsPanelProps {
-  onReady: (wv: Electron.WebviewTag) => void
-}
 
 const dockButtons: {
   pos: 'bottom' | 'left' | 'right'
@@ -18,33 +15,65 @@ const dockButtons: {
   { pos: 'right', Icon: PanelRight, title: 'Dock to right' },
 ]
 
-export default observer(function DevToolsPanel({
-  onReady,
-}: DevToolsPanelProps) {
+export default observer(function DevToolsPanel() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const wv = document.createElement('webview') as Electron.WebviewTag
-    let connected = false
-    wv.src = 'about:blank'
-    wv.style.width = '100%'
-    wv.style.height = '100%'
-    container.appendChild(wv)
+    const webviewElements = new Map<string, Electron.WebviewTag>()
 
-    wv.addEventListener('dom-ready', () => {
-      if (connected) return
-      connected = true
-      onReady(wv)
+    const dispose = autorun(() => {
+      const currentTabIds = new Set(store.tabs.map((t) => t.id))
+
+      // Remove webviews for closed tabs
+      for (const [tabId, wv] of webviewElements) {
+        if (!currentTabIds.has(tabId)) {
+          container.removeChild(wv)
+          webviewElements.delete(tabId)
+          store.devToolsWebviewRefs.delete(tabId)
+        }
+      }
+
+      const activeId = store.activeTabId
+
+      // Create devtools webview for active tab if needed
+      if (activeId && !webviewElements.has(activeId)) {
+        const wv = document.createElement('webview') as Electron.WebviewTag
+        wv.src = 'about:blank'
+        wv.style.width = '100%'
+        wv.style.height = '100%'
+        wv.style.position = 'absolute'
+        wv.style.top = '0'
+        wv.style.left = '0'
+        container.appendChild(wv)
+        webviewElements.set(activeId, wv)
+
+        let connected = false
+        wv.addEventListener('dom-ready', () => {
+          if (connected) return
+          connected = true
+          store.devToolsWebviewRefs.set(activeId, wv)
+          store.connectDevTools()
+        })
+      }
+
+      // Show active, hide others
+      for (const [tabId, wv] of webviewElements) {
+        wv.style.display = tabId === activeId ? 'flex' : 'none'
+      }
     })
 
     return () => {
-      store.devToolsWebviewRef = null
-      container.removeChild(wv)
+      dispose()
+      for (const [tabId, wv] of webviewElements) {
+        container.removeChild(wv)
+        store.devToolsWebviewRefs.delete(tabId)
+      }
+      webviewElements.clear()
     }
-  }, [onReady])
+  }, [])
 
   const position = store.devToolsPosition
 
@@ -74,7 +103,7 @@ export default observer(function DevToolsPanel({
           <X size={14} />
         </button>
       </div>
-      <div ref={containerRef} className="flex-1 overflow-hidden" />
+      <div ref={containerRef} className="flex-1 overflow-hidden relative" />
     </div>
   )
 })

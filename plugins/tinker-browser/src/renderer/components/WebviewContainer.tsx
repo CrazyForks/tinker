@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import { useRef, useEffect, useCallback, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { autorun } from 'mobx'
 import {
   Panel,
@@ -372,11 +372,6 @@ export default observer(function WebviewContainer() {
     }
   }, [])
 
-  const handleDevToolsReady = useCallback((wv: Electron.WebviewTag) => {
-    store.devToolsWebviewRef = wv
-    store.connectDevTools()
-  }, [])
-
   const showNewTab = store.activeTab && !store.activeTab.url
 
   return (
@@ -393,7 +388,7 @@ export default observer(function WebviewContainer() {
       >
         {store.devToolsOpen && devToolsBefore && (
           <Panel id="devtools" minSize={80} defaultSize={300}>
-            <DevToolsPanel onReady={handleDevToolsReady} />
+            <DevToolsPanel />
           </Panel>
         )}
         {store.devToolsOpen && devToolsBefore && <Separator />}
@@ -405,7 +400,7 @@ export default observer(function WebviewContainer() {
         {store.devToolsOpen && !devToolsBefore && <Separator />}
         {store.devToolsOpen && !devToolsBefore && (
           <Panel id="devtools" minSize={80} defaultSize={300}>
-            <DevToolsPanel onReady={handleDevToolsReady} />
+            <DevToolsPanel />
           </Panel>
         )}
       </Group>

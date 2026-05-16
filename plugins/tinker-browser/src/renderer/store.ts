@@ -29,9 +29,9 @@ class Store extends BaseStore {
   editingSite: ISite | null = null
 
   webviewRefs: Map<string, Electron.WebviewTag> = new Map()
-  devToolsOpen = false
+  devToolsOpenTabs: Set<string> = new Set()
   devToolsPosition: DevToolsPosition = 'bottom'
-  devToolsWebviewRef: Electron.WebviewTag | null = null
+  devToolsWebviewRefs: Map<string, Electron.WebviewTag> = new Map()
 
   private nextId = 1
 
@@ -39,7 +39,7 @@ class Store extends BaseStore {
     super()
     makeAutoObservable(this, {
       webviewRefs: false,
-      devToolsWebviewRef: false,
+      devToolsWebviewRefs: false,
       pendingInspect: false,
     })
     this.addTab()
@@ -131,6 +131,10 @@ class Store extends BaseStore {
     return this.tabs.find((t) => t.id === this.activeTabId)
   }
 
+  get devToolsOpen(): boolean {
+    return this.devToolsOpenTabs.has(this.activeTabId)
+  }
+
   addTab(url: string = NEW_TAB_URL, afterTabId?: string) {
     const id = `tab-${this.nextId++}`
     const tab: ITab = {
@@ -161,6 +165,8 @@ class Store extends BaseStore {
     if (index === -1) return
 
     this.webviewRefs.delete(id)
+    this.devToolsWebviewRefs.delete(id)
+    this.devToolsOpenTabs.delete(id)
     this.tabs.splice(index, 1)
 
     if (this.tabs.length === 0) {
@@ -309,11 +315,11 @@ class Store extends BaseStore {
   }
 
   openDevTools() {
-    this.devToolsOpen = true
+    this.devToolsOpenTabs.add(this.activeTabId)
   }
 
   closeDevTools() {
-    this.devToolsOpen = false
+    this.devToolsOpenTabs.delete(this.activeTabId)
   }
 
   setDevToolsPosition(position: DevToolsPosition) {
@@ -322,7 +328,11 @@ class Store extends BaseStore {
   }
 
   toggleDevTools() {
-    this.devToolsOpen = !this.devToolsOpen
+    if (this.devToolsOpen) {
+      this.devToolsOpenTabs.delete(this.activeTabId)
+    } else {
+      this.devToolsOpenTabs.add(this.activeTabId)
+    }
   }
 
   pendingInspect: { x: number; y: number } | null = null
@@ -332,7 +342,7 @@ class Store extends BaseStore {
     if (!wv) return
 
     if (!this.devToolsOpen) {
-      this.devToolsOpen = true
+      this.devToolsOpenTabs.add(this.activeTabId)
       this.pendingInspect = { x, y }
     } else {
       wv.inspectElement(x, y)
@@ -341,7 +351,8 @@ class Store extends BaseStore {
 
   connectDevTools() {
     const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
-    const devWv = this.devToolsWebviewRef
+    const devWv =
+      this.activeTab && this.devToolsWebviewRefs.get(this.activeTab.id)
     if (!wv || !devWv) return
 
     const doConnect = () => {
