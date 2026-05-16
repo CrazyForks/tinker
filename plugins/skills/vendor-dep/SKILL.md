@@ -35,10 +35,9 @@ Create `vendor/<lowerName>.ts`:
 **Named exports:**
 ```ts
 import * as <global-camel-name> from '<package-name>'
+import { expose } from './util'
 
-const g = globalThis as Record<string, unknown>
-
-g.<global-camel-name> = <global-camel-name>
+expose('<global-camel-name>', <global-camel-name>)
 
 export { <global-camel-name> }
 ```
@@ -46,10 +45,9 @@ export { <global-camel-name> }
 **Default export:**
 ```ts
 import <global-camel-name> from '<package-name>'
+import { expose } from './util'
 
-const g = globalThis as Record<string, unknown>
-
-g.<global-camel-name> = <global-camel-name>
+expose('<global-camel-name>', <global-camel-name>)
 
 export default <global-camel-name>
 ```
@@ -78,7 +76,7 @@ if (target === '<lowerName>') {
 "<package-name>": "<version>"
 ```
 
-Use the same version string currently in the plugin's `package.json`.
+Use the same version string currently in the plugin's `package.json`. Renderer libraries must always be installed as `devDependencies`, never `dependencies`.
 
 **Add build script:**
 

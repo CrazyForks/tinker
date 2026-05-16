@@ -18,5 +18,6 @@ Pre-built third-party libraries loaded as global scripts. Add `<script src="/ven
 | `htmltoimage.js` | `html-to-image` |
 | `wavesurfer.js` | `wavesurfer.js`, `wavesurfer.js/plugins/regions`, `wavesurfer.js/plugins/timeline` |
 | `tiptap.js` | `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-underline`, `@tiptap/extension-highlight` |
+| `cryptojs.js` | `crypto-js` |
 
 See `vite.config.ts` for the full mapping of module names to global variable names.

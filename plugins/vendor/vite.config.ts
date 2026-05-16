@@ -50,6 +50,7 @@ const globals: Record<string, string> = {
   '@tiptap/extension-highlight': 'tiptapExtensionHighlight',
   i18next: 'i18next',
   'react-i18next': 'reactI18next',
+  'crypto-js': 'CryptoJS',
 }
 
 export const shareExternal = ['systeminformation']
@@ -256,6 +257,10 @@ export default defineConfig(({ mode }) => {
       ['react', 'react-dom'],
       'dist/videojs'
     )
+  }
+
+  if (target === 'cryptojs') {
+    return createConfig('cryptojs', 'PluginVendorCryptoJS')
   }
 
   if (target === 'i18next') {
