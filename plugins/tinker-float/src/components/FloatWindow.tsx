@@ -1,4 +1,5 @@
 import { tw } from 'share/theme'
+import Webview from 'share/components/Webview'
 
 interface FloatWindowProps {
   contentType: 'image' | 'text' | 'video' | 'url'
@@ -6,6 +7,9 @@ interface FloatWindowProps {
   textContent: string
   videoSrc: string
   onClose: () => void
+  webviewSrc?: string
+  onWebviewError?: () => void
+  onWebviewReady?: () => void
 }
 
 export default function FloatWindow({
@@ -14,6 +18,9 @@ export default function FloatWindow({
   textContent,
   videoSrc,
   onClose,
+  webviewSrc,
+  onWebviewError,
+  onWebviewReady,
 }: FloatWindowProps) {
   return (
     <div
@@ -60,8 +67,17 @@ export default function FloatWindow({
           controls
         />
       )}
-      {contentType === 'url' && (
-        <div id="webview-container" className="w-full flex-1 min-h-0" />
+      {contentType === 'url' && webviewSrc && (
+        <Webview
+          src={webviewSrc}
+          className="w-full flex-1 min-h-0"
+          onLoadError={() => {
+            onWebviewError?.()
+          }}
+          onDomReady={() => {
+            onWebviewReady?.()
+          }}
+        />
       )}
       {contentType === 'text' && (
         <pre

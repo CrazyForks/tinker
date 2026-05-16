@@ -31,7 +31,6 @@ class Store extends BaseStore {
   webviewRefs: Map<string, Electron.WebviewTag> = new Map()
   devToolsOpenTabs: Set<string> = new Set()
   devToolsPosition: DevToolsPosition = 'bottom'
-  devToolsWebviewRefs: Map<string, Electron.WebviewTag> = new Map()
 
   private nextId = 1
 
@@ -39,8 +38,6 @@ class Store extends BaseStore {
     super()
     makeAutoObservable(this, {
       webviewRefs: false,
-      devToolsWebviewRefs: false,
-      pendingInspect: false,
     })
     this.addTab()
     this.loadSites()
@@ -165,7 +162,6 @@ class Store extends BaseStore {
     if (index === -1) return
 
     this.webviewRefs.delete(id)
-    this.devToolsWebviewRefs.delete(id)
     this.devToolsOpenTabs.delete(id)
     this.tabs.splice(index, 1)
 
@@ -346,38 +342,6 @@ class Store extends BaseStore {
       this.pendingInspect = { x, y }
     } else {
       wv.inspectElement(x, y)
-    }
-  }
-
-  connectDevTools() {
-    const wv = this.activeTab && this.webviewRefs.get(this.activeTab.id)
-    const devWv =
-      this.activeTab && this.devToolsWebviewRefs.get(this.activeTab.id)
-    if (!wv || !devWv) return
-
-    const doConnect = () => {
-      try {
-        ;(wv as tinker.WebviewTag).showDevTools(devWv).then(() => {
-          if (this.pendingInspect) {
-            const { x, y } = this.pendingInspect
-            this.pendingInspect = null
-            wv.inspectElement(x, y)
-          }
-        })
-      } catch {
-        // WebView not ready yet
-      }
-    }
-
-    try {
-      wv.getWebContentsId()
-      doConnect()
-    } catch {
-      const onDomReady = () => {
-        wv.removeEventListener('dom-ready', onDomReady)
-        doConnect()
-      }
-      wv.addEventListener('dom-ready', onDomReady)
     }
   }
 }
