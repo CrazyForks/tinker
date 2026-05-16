@@ -11,14 +11,9 @@ const DRAG_THRESHOLD = 5
 interface TabProps {
   tab: ITab
   isFirst: boolean
-  showSeparator: boolean
 }
 
-export default observer(function Tab({
-  tab,
-  isFirst,
-  showSeparator,
-}: TabProps) {
+export default observer(function Tab({ tab, isFirst }: TabProps) {
   const { t } = useTranslation()
   const isActive = store.activeTabId === tab.id
   const tabRef = useRef<HTMLDivElement>(null)
@@ -208,12 +203,12 @@ export default observer(function Tab({
     <div
       ref={tabRef}
       data-tab-id={tab.id}
-      className={`group relative flex items-center h-full max-w-[240px] min-w-[72px] cursor-default transition-colors duration-100 select-none ${
+      className={`group relative flex items-center h-full w-[240px] min-w-[72px] cursor-default transition-colors duration-100 select-none ${
         isActive
           ? `${tw.bg.secondary} z-[2]`
           : `${tw.bg.tertiary} hover:bg-black/[0.06] dark:hover:bg-white/[0.08] z-[1]`
       }`}
-      style={{ flex: '1 1 0', minWidth: '72px' }}
+      style={{ flex: '0 1 240px', minWidth: '72px' }}
       onMouseDown={handleMouseDown}
       onContextMenu={handleContextMenu}
     >
@@ -233,12 +228,6 @@ export default observer(function Tab({
           className={`pointer-events-none absolute bottom-0 left-0 right-0 h-px ${tw.bg.border}`}
         />
       )}
-      {/* Separator: always in DOM, visibility toggled */}
-      <div
-        className={`absolute -right-px top-1/4 bottom-1/4 w-px z-[3] ${
-          tw.bg.border
-        } ${showSeparator ? 'visible' : 'invisible'}`}
-      />
       <div className="flex items-center overflow-hidden flex-1 min-w-0 ml-2.5">
         <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
           {tab.isLoading ? (
