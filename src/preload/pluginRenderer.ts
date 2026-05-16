@@ -234,6 +234,20 @@ export function injectApi() {
     }
   })
 
+  _tinker.on('webviewNewWindow', (webContentsId: number, url: string) => {
+    const webviews = document.querySelectorAll('webview')
+    for (const wv of webviews) {
+      try {
+        if ((wv as Electron.WebviewTag).getWebContentsId() === webContentsId) {
+          wv.dispatchEvent(Object.assign(new Event('new-window'), { url }))
+          break
+        }
+      } catch {
+        // webview not ready
+      }
+    }
+  })
+
   async function getDownloads() {
     const list = await _tinker.getDownloads()
     return list.map((dl: any) => {

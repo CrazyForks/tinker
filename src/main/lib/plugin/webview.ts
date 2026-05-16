@@ -1,5 +1,5 @@
 import { IpcSendDebuggerCommand, IpcShowDevTools } from 'common/types'
-import { webContents } from 'electron'
+import { app, webContents } from 'electron'
 import { handleEvent } from 'share/main/lib/util'
 
 const showDevTools: IpcShowDevTools = async function (
@@ -36,7 +36,22 @@ const sendDebuggerCommand: IpcSendDebuggerCommand = async function (
   return result
 }
 
+function interceptWebviewWindowOpen() {
+  app.on('web-contents-created', (_event, wc) => {
+    if (wc.getType() !== 'webview') return
+
+    wc.setWindowOpenHandler(({ url }) => {
+      const host = wc.hostWebContents
+      if (host) {
+        host.send('webviewNewWindow', wc.id, url)
+      }
+      return { action: 'deny' }
+    })
+  })
+}
+
 export function init() {
   handleEvent('showDevTools', showDevTools)
   handleEvent('sendDebuggerCommand', sendDebuggerCommand)
+  interceptWebviewWindowOpen()
 }
