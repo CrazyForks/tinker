@@ -584,7 +584,7 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
       container.removeChild(wv)
       devToolsWebviewRef.current = null
     }
-  }, [devTools, connectDevTools])
+  }, [devTools, devToolsPosition, connectDevTools])
 
   useEffect(() => {
     if (!devTools) return
@@ -606,7 +606,13 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
     ro.observe(slot)
     sync()
 
-    return () => ro.disconnect()
+    return () => {
+      ro.disconnect()
+      container.style.top = ''
+      container.style.left = ''
+      container.style.width = ''
+      container.style.height = ''
+    }
   }, [devTools, devToolsPosition])
 
   useEffect(() => {
