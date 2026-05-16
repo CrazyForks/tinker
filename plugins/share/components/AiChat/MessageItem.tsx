@@ -49,11 +49,9 @@ export interface MessageItemProps {
   /** Extra content rendered below the message bubble (e.g. search cards). */
   footer?: React.ReactNode
   isDark?: boolean
-  // Labels
   retryLabel?: string
   deleteLabel?: string
   errorPrefix?: string
-  // Callbacks
   onRetry?: () => void
   onDelete?: (id: string) => void
 }

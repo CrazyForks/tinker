@@ -103,14 +103,12 @@ export interface WebviewProps {
   src: string
   className?: string
 
-  // Feature toggles
   allowPopups?: boolean
   userAgent?: string
   devTools?: boolean
   devToolsPosition?: DevToolsPosition
   contextMenu?: boolean | ContextMenuFeatures
 
-  // Event callbacks
   onLoadStart?: () => void
   onLoadEnd?: () => void
   onLoadError?: (errorCode: number, errorDescription: string) => void
@@ -126,7 +124,6 @@ export interface WebviewProps {
   onPendingInspectHandled?: () => void
   onInspectElement?: (x: number, y: number) => void
 
-  // Context menu customization: return extra items to prepend/append
   extraContextMenuItems?: (
     params: ContextMenuParams,
     webview: Electron.WebviewTag
@@ -183,7 +180,6 @@ function buildContextMenuItems(
 ): MenuItem[] {
   const items: MenuItem[] = []
 
-  // Link items
   if (params.linkURL) {
     if (features.openInNewTab) {
       items.push({
@@ -197,7 +193,6 @@ function buildContextMenuItems(
     )
   }
 
-  // Image items
   if (params.hasImageContents) {
     if (features.openInNewTab) {
       items.push({
@@ -223,7 +218,6 @@ function buildContextMenuItems(
     items.push({ type: 'separator' })
   }
 
-  // Editable items
   if (params.isEditable) {
     items.push(
       { label: t('undo'), click: () => wv.undo() },
@@ -241,7 +235,6 @@ function buildContextMenuItems(
       { type: 'separator' }
     )
   } else if (!params.linkURL && !params.hasImageContents) {
-    // Navigation items
     items.push(
       {
         label: t('back'),
@@ -257,7 +250,6 @@ function buildContextMenuItems(
       { type: 'separator' }
     )
 
-    // Capture items
     if (features.capture) {
       items.push({
         label: t('capture'),
@@ -315,7 +307,6 @@ function buildContextMenuItems(
       items.push({ type: 'separator' })
     }
 
-    // Save / Print / View Source
     if (features.saveAs) {
       items.push({
         label: t('saveAs'),
@@ -341,7 +332,6 @@ function buildContextMenuItems(
     }
   }
 
-  // Inspect
   if (features.inspect) {
     items.push({
       label: t('inspect'),
@@ -397,7 +387,6 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
   const tRef = useRef(t)
   tRef.current = t
 
-  // Keep callbacks in refs to avoid re-creating webview on callback changes
   const callbacksRef = useRef({
     onLoadStart,
     onLoadEnd,
@@ -440,7 +429,7 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
           }
         })
       } catch {
-        // WebView not ready yet
+        // noop
       }
     }
 
@@ -456,12 +445,10 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
     }
   }, [])
 
-  // Store initial src so the webview is only created once
   const initialSrcRef = useRef(src)
   const contextMenuFeaturesRef = useRef(contextMenuFeatures)
   contextMenuFeaturesRef.current = contextMenuFeatures
 
-  // Create main webview (once on mount)
   useEffect(() => {
     const container = containerRef.current
     if (!container || !initialSrcRef.current) return
@@ -571,7 +558,6 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
     }
   }, [allowPopups, userAgent])
 
-  // DevTools webview creation
   useEffect(() => {
     const container = devToolsContainerRef.current
     if (!container || !devTools) return
@@ -600,7 +586,6 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
     }
   }, [devTools, connectDevTools])
 
-  // Sync webview container position/size with the panel slot (only when devTools is open)
   useEffect(() => {
     if (!devTools) return
     const container = containerRef.current
@@ -624,7 +609,6 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
     return () => ro.disconnect()
   }, [devTools, devToolsPosition])
 
-  // Resize drag overlay
   useEffect(() => {
     const wrapper = wrapperRef.current
     if (!wrapper) return
@@ -742,38 +726,32 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
     </Panel>
   ) : null
 
-  if (!devTools) {
-    return (
-      <div className={`overflow-hidden relative ${className}`}>
-        <div ref={containerRef} className="absolute inset-0" />
-      </div>
-    )
-  }
-
   return (
     <div
       ref={wrapperRef}
       className={`flex flex-col overflow-hidden relative ${className}`}
     >
-      <Group
-        key={devToolsPosition}
-        orientation={orientation}
-        className="h-full"
-        defaultLayout={defaultLayout}
-        onLayoutChange={onLayoutChange}
-      >
-        {devToolsBefore && devToolsPanel}
-        {devTools && devToolsBefore && <Separator />}
-        <Panel id="webview" minSize={100}>
-          <div ref={panelSlotRef} className="h-full" />
-        </Panel>
-        {devTools && !devToolsBefore && <Separator />}
-        {!devToolsBefore && devToolsPanel}
-      </Group>
+      {devTools && (
+        <Group
+          key={devToolsPosition}
+          orientation={orientation}
+          className="h-full"
+          defaultLayout={defaultLayout}
+          onLayoutChange={onLayoutChange}
+        >
+          {devToolsBefore && devToolsPanel}
+          {devToolsBefore && <Separator />}
+          <Panel id="webview" minSize={100}>
+            <div ref={panelSlotRef} className="h-full" />
+          </Panel>
+          {!devToolsBefore && <Separator />}
+          {!devToolsBefore && devToolsPanel}
+        </Group>
+      )}
       <div
         ref={containerRef}
-        className="absolute overflow-hidden"
-        style={{ zIndex: 1 }}
+        className={devTools ? 'absolute overflow-hidden' : 'absolute inset-0'}
+        style={devTools ? { zIndex: 1 } : undefined}
       />
       {resizing && <div className="absolute inset-0" style={{ zIndex: 10 }} />}
     </div>

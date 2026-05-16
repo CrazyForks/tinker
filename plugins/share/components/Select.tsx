@@ -26,7 +26,6 @@ export default function Select<T extends string | number = string>({
 }: SelectProps<T>) {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value
-    // Find the matching option and use its original value
     const matchedOption = options.find(
       (opt) => String(opt.value) === selectedValue
     )
