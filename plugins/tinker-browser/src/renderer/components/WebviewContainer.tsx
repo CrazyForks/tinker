@@ -10,6 +10,7 @@ import {
 import copy from 'licia/copy'
 import convertBin from 'licia/convertBin'
 import store from '../store'
+import { cleanUserAgent } from '../lib/util'
 import NewTabPage from './NewTabPage'
 import DevToolsPanel from './DevToolsPanel'
 import i18n from 'i18next'
@@ -38,6 +39,7 @@ function createWebview(tabId: string, url: string): Electron.WebviewTag {
   wv.style.top = '0'
   wv.style.left = '0'
   wv.setAttribute('allowpopups', '')
+  wv.useragent = cleanUserAgent(navigator.userAgent)
 
   wv.addEventListener('did-start-loading', () => {
     store.updateTabLoading(tabId, true)
