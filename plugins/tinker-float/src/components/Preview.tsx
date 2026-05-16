@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 import { tw } from 'share/theme'
 import Webview from 'share/components/Webview'
 import VideoPlayer from 'share/components/VideoPlayer'
-import i18n from 'i18next'
+
 import store from '../store'
 
 const { Provider, Container } = createPlayer({
@@ -70,7 +70,7 @@ export default observer(function Preview() {
       <div className="flex-1 overflow-hidden">
         <Provider>
           <Container className="h-full">
-            <VideoPlayer locale={i18n.language}>
+            <VideoPlayer>
               <Video src={store.videoSrc} onClick={handleVideoClick} />
             </VideoPlayer>
           </Container>

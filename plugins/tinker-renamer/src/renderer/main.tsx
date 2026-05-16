@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite'
-import { useTranslation } from 'react-i18next'
 import { Panel, Group, useDefaultLayout } from 'react-resizable-panels'
 import { ConfirmProvider } from 'share/components/Confirm'
 import { ToasterProvider } from 'share/components/Toaster'
@@ -14,7 +13,6 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { i18n } = useTranslation()
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
     panelIds: ['files', 'rules'],
     id: 'tinker-renamer-layout',
@@ -22,7 +20,7 @@ const App = observer(function App() {
   })
 
   return (
-    <ConfirmProvider locale={i18n.language}>
+    <ConfirmProvider>
       <ToasterProvider>
         <div
           className={`h-screen flex flex-col ${tw.bg.primary} ${tw.text.primary}`}

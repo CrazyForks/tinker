@@ -97,7 +97,7 @@ const App = observer(function App() {
   )
 
   return (
-    <ConfirmProvider locale={i18n.language}>
+    <ConfirmProvider>
       <div
         className="relative h-screen"
         onDrop={handleDrop}
@@ -107,7 +107,6 @@ const App = observer(function App() {
         <Provider>
           <Container className="h-full">
             <VideoPlayer
-              locale={i18n.language}
               disabled={!store.hasVideo}
               onTogglePlaylist={() => store.togglePlaylist()}
             >

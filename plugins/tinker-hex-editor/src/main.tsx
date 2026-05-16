@@ -14,7 +14,7 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -40,7 +40,7 @@ const App = observer(function App() {
   }, [])
 
   return (
-    <AlertProvider locale={i18n.language}>
+    <AlertProvider>
       <div
         className={`h-screen flex flex-col ${tw.bg.primary}`}
         onDragOver={handleDragOver}

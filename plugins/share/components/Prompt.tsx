@@ -1,7 +1,22 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Dialog, { DialogButton } from './Dialog'
 import TextInput from './TextInput'
 import { tw } from '../theme'
+import { addI18nNamespace } from '../lib/i18n'
+
+const I18N_NS = 'prompt'
+
+addI18nNamespace(I18N_NS, {
+  'en-US': {
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+  },
+  'zh-CN': {
+    confirm: '确定',
+    cancel: '取消',
+  },
+})
 
 export interface PromptOptions {
   title: string
@@ -11,17 +26,6 @@ export interface PromptOptions {
   confirmText?: string
   cancelText?: string
   inputType?: 'text' | 'password'
-}
-
-const BUILT_IN_TRANSLATIONS = {
-  'en-US': {
-    confirm: 'Confirm',
-    cancel: 'Cancel',
-  },
-  'zh-CN': {
-    confirm: '确定',
-    cancel: '取消',
-  },
 }
 
 let showPromptFn: ((options: PromptOptions) => Promise<string | null>) | null =
@@ -36,13 +40,10 @@ export function prompt(options: PromptOptions): Promise<string | null> {
 
 interface PromptProviderProps {
   children: React.ReactNode
-  locale?: string
 }
 
-export function PromptProvider({
-  children,
-  locale = 'en-US',
-}: PromptProviderProps) {
+export function PromptProvider({ children }: PromptProviderProps) {
+  const { t } = useTranslation(I18N_NS)
   const [promptState, setPromptState] = useState<PromptOptions | null>(null)
   const [inputValue, setInputValue] = useState('')
   const [resolver, setResolver] = useState<
@@ -103,10 +104,10 @@ export function PromptProvider({
           />
           <div className="flex gap-2 justify-end">
             <DialogButton variant="text" onClick={handleCancel}>
-              {promptState.cancelText || BUILT_IN_TRANSLATIONS[locale].cancel}
+              {promptState.cancelText || t('cancel')}
             </DialogButton>
             <DialogButton onClick={handleConfirm} disabled={!inputValue.trim()}>
-              {promptState.confirmText || BUILT_IN_TRANSLATIONS[locale].confirm}
+              {promptState.confirmText || t('confirm')}
             </DialogButton>
           </div>
         </Dialog>

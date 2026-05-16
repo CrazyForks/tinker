@@ -22,7 +22,7 @@ const SIDEBAR_OPEN_STYLE: React.CSSProperties = { width: 192 }
 const SIDEBAR_CLOSED_STYLE: React.CSSProperties = { width: 0 }
 
 const App = observer(function App() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   const handleAddSource = async () => {
     const url = await prompt({
@@ -43,9 +43,9 @@ const App = observer(function App() {
   }
 
   return (
-    <AlertProvider locale={i18n.language}>
-      <ConfirmProvider locale={i18n.language}>
-        <PromptProvider locale={i18n.language}>
+    <AlertProvider>
+      <ConfirmProvider>
+        <PromptProvider>
           <ToasterProvider>
             <div
               className={`relative h-screen flex flex-col overflow-hidden transition-colors ${tw.bg.primary}`}

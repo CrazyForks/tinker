@@ -1,15 +1,12 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Dialog, { DialogButton } from './Dialog'
 import { tw } from '../theme'
+import { addI18nNamespace } from '../lib/i18n'
 
-export interface ConfirmOptions {
-  title: string
-  message?: string
-  confirmText?: string
-  cancelText?: string
-}
+const I18N_NS = 'confirm'
 
-const BUILT_IN_TRANSLATIONS = {
+addI18nNamespace(I18N_NS, {
   'en-US': {
     confirm: 'Confirm',
     cancel: 'Cancel',
@@ -18,6 +15,13 @@ const BUILT_IN_TRANSLATIONS = {
     confirm: '确定',
     cancel: '取消',
   },
+})
+
+export interface ConfirmOptions {
+  title: string
+  message?: string
+  confirmText?: string
+  cancelText?: string
 }
 
 let showConfirmFn: ((options: ConfirmOptions) => Promise<boolean>) | null = null
@@ -31,13 +35,10 @@ export function confirm(options: ConfirmOptions): Promise<boolean> {
 
 interface ConfirmProviderProps {
   children: React.ReactNode
-  locale?: string
 }
 
-export function ConfirmProvider({
-  children,
-  locale = 'en-US',
-}: ConfirmProviderProps) {
+export function ConfirmProvider({ children }: ConfirmProviderProps) {
+  const { t } = useTranslation(I18N_NS)
   const [confirmState, setConfirmState] = useState<ConfirmOptions | null>(null)
   const [resolver, setResolver] = useState<((value: boolean) => void) | null>(
     null
@@ -78,11 +79,10 @@ export function ConfirmProvider({
           )}
           <div className="flex gap-2 justify-end">
             <DialogButton variant="text" onClick={handleCancel}>
-              {confirmState.cancelText || BUILT_IN_TRANSLATIONS[locale].cancel}
+              {confirmState.cancelText || t('cancel')}
             </DialogButton>
             <DialogButton onClick={handleConfirm}>
-              {confirmState.confirmText ||
-                BUILT_IN_TRANSLATIONS[locale].confirm}
+              {confirmState.confirmText || t('confirm')}
             </DialogButton>
           </div>
         </Dialog>

@@ -4,23 +4,15 @@ import fileUrl from 'licia/fileUrl'
 import dateFormat from 'licia/dateFormat'
 import { createPlayer } from '@videojs/react'
 import { Video, videoFeatures } from '@videojs/react/video'
+import { useTranslation } from 'react-i18next'
 import VideoPlayer from './VideoPlayer'
 import { tw } from '../theme'
 import { getFileCategory, getFileIcon } from '../lib/util'
+import { addI18nNamespace } from '../lib/i18n'
 
-interface FileStat {
-  size: number
-  mtime: string
-  atime: string
-  ctime: string
-}
+const I18N_NS = 'filePreview'
 
-export interface FilePreviewProps {
-  path: string | null
-  locale?: string
-}
-
-const BUILT_IN_TRANSLATIONS = {
+addI18nNamespace(I18N_NS, {
   'en-US': {
     noFileSelected: 'Select a file to preview',
     name: 'Name:',
@@ -39,16 +31,24 @@ const BUILT_IN_TRANSLATIONS = {
     created: '创建时间：',
     lastOpened: '上次打开：',
   },
+})
+
+interface FileStat {
+  size: number
+  mtime: string
+  atime: string
+  ctime: string
+}
+
+export interface FilePreviewProps {
+  path: string | null
 }
 
 const iconCache = new Map<string, string>()
 const fstatCache = new Map<string, FileStat>()
 
-export default function FilePreview({
-  path,
-  locale = 'en-US',
-}: FilePreviewProps) {
-  const t = BUILT_IN_TRANSLATIONS[locale] || BUILT_IN_TRANSLATIONS['en-US']
+export default function FilePreview({ path }: FilePreviewProps) {
+  const { t } = useTranslation(I18N_NS)
   const [icon, setIcon] = useState<string | undefined>(undefined)
   const [fstat, setFstat] = useState<FileStat | undefined>(undefined)
   const [imgFailed, setImgFailed] = useState(false)
@@ -92,7 +92,7 @@ export default function FilePreview({
         className={`w-[280px] border-l ${tw.border} flex items-center justify-center`}
       >
         <span className={`text-xs ${tw.text.tertiary}`}>
-          {t.noFileSelected}
+          {t('noFileSelected')}
         </span>
       </div>
     )
@@ -117,7 +117,7 @@ export default function FilePreview({
             onError={() => setImgFailed(true)}
           />
         ) : isVideo ? (
-          <VideoPreview src={url} locale={locale} />
+          <VideoPreview src={url} />
         ) : icon ? (
           <img src={icon} alt="" className="w-16 h-16" />
         ) : (
@@ -130,20 +130,20 @@ export default function FilePreview({
         {name}
       </div>
       <div className={`p-4 space-y-2`}>
-        <InfoRow label={t.path} value={dir} />
+        <InfoRow label={t('path')} value={dir} />
         {fstat && (
           <>
-            <InfoRow label={t.size} value={fileSize(fstat.size)} />
+            <InfoRow label={t('size')} value={fileSize(fstat.size)} />
             <InfoRow
-              label={t.modified}
+              label={t('modified')}
               value={dateFormat(new Date(fstat.mtime), 'yyyy-mm-dd HH:MM')}
             />
             <InfoRow
-              label={t.created}
+              label={t('created')}
               value={dateFormat(new Date(fstat.ctime), 'yyyy-mm-dd HH:MM')}
             />
             <InfoRow
-              label={t.lastOpened}
+              label={t('lastOpened')}
               value={dateFormat(new Date(fstat.atime), 'yyyy-mm-dd HH:MM')}
             />
           </>
@@ -162,7 +162,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function VideoPreview({ src, locale }: { src: string; locale: string }) {
+function VideoPreview({ src }: { src: string }) {
   const { Container, Provider } = useMemo(() => {
     const { Container, Provider } = createPlayer({
       features: videoFeatures,
@@ -173,7 +173,7 @@ function VideoPreview({ src, locale }: { src: string; locale: string }) {
   return (
     <Provider>
       <Container className="w-full h-full">
-        <VideoPlayer locale={locale}>
+        <VideoPlayer>
           <Video src={src} />
         </VideoPlayer>
       </Container>

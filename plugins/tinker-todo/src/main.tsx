@@ -17,12 +17,12 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   if (store.needsFileSelection) {
     return (
-      <AlertProvider locale={i18n.language}>
-        <ConfirmProvider locale={i18n.language}>
+      <AlertProvider>
+        <ConfirmProvider>
           <ToasterProvider>
             <Welcome
               onOpenFile={() => store.openExistingFile()}
@@ -35,8 +35,8 @@ const App = observer(function App() {
   }
 
   return (
-    <AlertProvider locale={i18n.language}>
-      <ConfirmProvider locale={i18n.language}>
+    <AlertProvider>
+      <ConfirmProvider>
         <ToasterProvider>
           <div className={`h-screen flex flex-col ${tw.bg.primary}`}>
             <Toolbar />

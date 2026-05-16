@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useTranslation } from 'react-i18next'
 import FullCalendar from '@fullcalendar/react'
 import { ConfirmProvider } from 'share/components/Confirm'
 import { PromptProvider } from 'share/components/Prompt'
@@ -15,13 +14,12 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { i18n } = useTranslation()
   const calendarRef = useRef<FullCalendar | null>(null)
   const [currentView, setCurrentView] = useState<string>('dayGridMonth')
 
   return (
-    <ConfirmProvider locale={i18n.language}>
-      <PromptProvider locale={i18n.language}>
+    <ConfirmProvider>
+      <PromptProvider>
         <div
           className={`h-screen flex flex-col transition-colors ${tw.bg.primary} ${tw.text.primary}`}
         >

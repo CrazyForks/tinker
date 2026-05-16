@@ -121,7 +121,7 @@ Requires `react-hex-editor` and `styled-components` vendor scripts.
 
 ```ts
 import VideoPlayer from 'share/components/VideoPlayer'
-;<VideoPlayer locale="en-US" disabled={false} onTogglePlaylist={fn}>
+;<VideoPlayer disabled={false} onTogglePlaylist={fn}>
   <Video src={src} autoPlay />
 </VideoPlayer>
 ```

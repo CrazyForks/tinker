@@ -44,8 +44,12 @@ import {
   Loader2,
   ListVideo,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { addI18nNamespace } from '../lib/i18n'
 
-const BUILT_IN_TRANSLATIONS: Record<string, Record<string, string>> = {
+const I18N_NS = 'videoPlayer'
+
+addI18nNamespace(I18N_NS, {
   'en-US': {
     play: 'Play',
     pause: 'Pause',
@@ -84,21 +88,7 @@ const BUILT_IN_TRANSLATIONS: Record<string, Record<string, string>> = {
     ok: '确定',
     playlist: '播放列表',
   },
-}
-
-function createT(locale: string) {
-  const translations =
-    BUILT_IN_TRANSLATIONS[locale] || BUILT_IN_TRANSLATIONS['en-US']
-  return (key: string, params?: Record<string, string | number>) => {
-    let text = translations[key] || key
-    if (params) {
-      for (const [k, v] of Object.entries(params)) {
-        text = text.replace(`{{${k}}}`, String(v))
-      }
-    }
-    return text
-  }
-}
+})
 
 const SEEK_TIME = 10
 const ICON_SIZE = 18
@@ -167,7 +157,6 @@ function injectStyles() {
 export interface VideoPlayerProps extends PropsWithChildren {
   className?: string
   poster?: string
-  locale?: string
   disabled?: boolean
   onTogglePlaylist?: () => void
 }
@@ -188,7 +177,8 @@ const Button = forwardRef<
   )
 })
 
-function VolumePopover({ t }: { t: (key: string) => string }) {
+function VolumePopover() {
+  const { t } = useTranslation(I18N_NS)
   const volumeUnsupported = usePlayer(
     (s) => s.volumeAvailability === 'unsupported'
   )
@@ -235,13 +225,14 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     children,
     className,
     poster,
-    locale = 'en-US',
     disabled = false,
     onTogglePlaylist,
     ...rest
   } = props
 
   injectStyles()
+
+  const { t } = useTranslation(I18N_NS)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [compact, setCompact] = useState(false)
@@ -258,7 +249,6 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     return () => ro.disconnect()
   }, [])
 
-  const t = createT(locale)
   const disabledClass = disabled ? 'opacity-30 pointer-events-none' : ''
 
   const playLabel: PlayButtonProps['label'] = (state) => {
@@ -454,7 +444,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
                     {t('togglePlaybackRate')}
                   </Tooltip.Popup>
                 </Tooltip.Root>
-                <VolumePopover t={t} />
+                <VolumePopover />
                 <Tooltip.Root side="top">
                   <Tooltip.Trigger
                     render={

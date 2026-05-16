@@ -146,7 +146,7 @@ function GroupCellRenderer({ data, expanded }: GroupCellProps) {
 }
 
 export default observer(function ResultView() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(
     () => new Set()
   )
@@ -276,9 +276,7 @@ export default observer(function ResultView() {
           overlayNoRowsTemplate={`<span>${t('noRows')}</span>`}
         />
       </div>
-      {store.showPreview && (
-        <FilePreview path={file?.path ?? null} locale={i18n.language} />
-      )}
+      {store.showPreview && <FilePreview path={file?.path ?? null} />}
     </div>
   )
 })

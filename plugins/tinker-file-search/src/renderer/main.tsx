@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite'
-import { useTranslation } from 'react-i18next'
 import { ToasterProvider } from 'share/components/Toaster'
 import FilePreview from 'share/components/FilePreview'
 import { tw } from 'share/theme'
@@ -12,7 +11,6 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { i18n } = useTranslation()
   const file = store.selectedFile
 
   return (
@@ -23,9 +21,7 @@ const App = observer(function App() {
         <Toolbar />
         <div className="flex-1 flex overflow-hidden">
           <ResultView />
-          {store.showPreview && (
-            <FilePreview path={file?.path ?? null} locale={i18n.language} />
-          )}
+          {store.showPreview && <FilePreview path={file?.path ?? null} />}
         </div>
       </div>
     </ToasterProvider>

@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite'
-import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { AlertProvider } from 'share/components/Alert'
 import { tw } from 'share/theme'
@@ -14,8 +13,6 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { i18n } = useTranslation()
-
   useEffect(() => {
     const template = getTemplateById(store.selectedTemplateId)
     if (template) {
@@ -24,7 +21,7 @@ const App = observer(function App() {
   }, [])
 
   return (
-    <AlertProvider locale={i18n.language}>
+    <AlertProvider>
       <div className={`h-screen flex flex-col ${tw.bg.primary}`}>
         <Toolbar />
 

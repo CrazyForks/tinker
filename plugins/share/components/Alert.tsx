@@ -1,20 +1,24 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Dialog, { DialogButton } from './Dialog'
 import { tw } from '../theme'
+import { addI18nNamespace } from '../lib/i18n'
 
-export interface AlertOptions {
-  title: string
-  message?: string
-  confirmText?: string
-}
+const I18N_NS = 'alert'
 
-const BUILT_IN_TRANSLATIONS = {
+addI18nNamespace(I18N_NS, {
   'en-US': {
     confirm: 'Confirm',
   },
   'zh-CN': {
     confirm: '确定',
   },
+})
+
+export interface AlertOptions {
+  title: string
+  message?: string
+  confirmText?: string
 }
 
 let showAlertFn: ((options: AlertOptions) => Promise<void>) | null = null
@@ -28,13 +32,10 @@ export function alert(options: AlertOptions): Promise<void> {
 
 interface AlertProviderProps {
   children: React.ReactNode
-  locale?: string
 }
 
-export function AlertProvider({
-  children,
-  locale = 'en-US',
-}: AlertProviderProps) {
+export function AlertProvider({ children }: AlertProviderProps) {
+  const { t } = useTranslation(I18N_NS)
   const [alertState, setAlertState] = useState<AlertOptions | null>(null)
   const [resolver, setResolver] = useState<(() => void) | null>(null)
 
@@ -65,7 +66,7 @@ export function AlertProvider({
           )}
           <div className="flex justify-end">
             <DialogButton onClick={handleClose}>
-              {alertState.confirmText || BUILT_IN_TRANSLATIONS[locale].confirm}
+              {alertState.confirmText || t('confirm')}
             </DialogButton>
           </div>
         </Dialog>

@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite'
-import { useTranslation } from 'react-i18next'
 import { Panel, Group, useDefaultLayout } from 'react-resizable-panels'
 import { ConfirmProvider } from 'share/components/Confirm'
 import { PromptProvider } from 'share/components/Prompt'
@@ -14,7 +13,6 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { i18n } = useTranslation()
   const { defaultLayout, onLayoutChange } = useDefaultLayout({
     panelIds: ['sidebar', 'main'],
     id: 'tinker-http-request-layout',
@@ -22,8 +20,8 @@ const App = observer(function App() {
   })
 
   return (
-    <ConfirmProvider locale={i18n.language}>
-      <PromptProvider locale={i18n.language}>
+    <ConfirmProvider>
+      <PromptProvider>
         <div
           className={`h-screen flex flex-col ${tw.bg.primary} ${tw.text.primary}`}
         >

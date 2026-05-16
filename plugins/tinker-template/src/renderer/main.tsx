@@ -17,7 +17,7 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   const tabs = [
     { id: 'components', label: t('components') },
@@ -27,9 +27,9 @@ const App = observer(function App() {
   ]
 
   return (
-    <AlertProvider locale={i18n.language}>
-      <ConfirmProvider locale={i18n.language}>
-        <PromptProvider locale={i18n.language}>
+    <AlertProvider>
+      <ConfirmProvider>
+        <PromptProvider>
           <ToasterProvider>
             <div
               className={`h-screen flex flex-col transition-colors ${tw.bg.primary}`}

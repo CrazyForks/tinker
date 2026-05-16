@@ -18,11 +18,11 @@ import enUS from './i18n/en-US.json'
 import zhCN from './i18n/zh-CN.json'
 
 const App = observer(function App() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const accounts = store.filteredAccounts
 
   return (
-    <ConfirmProvider locale={i18n.language}>
+    <ConfirmProvider>
       <ToasterProvider>
         {store.isLocked ? (
           <LockScreen />
