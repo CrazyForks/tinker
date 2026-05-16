@@ -15,12 +15,13 @@ import {
 import copy from 'licia/copy'
 import convertBin from 'licia/convertBin'
 import { X, PanelBottom, PanelLeft, PanelRight, LucideIcon } from 'lucide-react'
-import i18n from 'i18next'
+import { useTranslation } from 'react-i18next'
 import { tw } from '../theme'
+import { addI18nNamespace } from '../lib/i18n'
 
 const I18N_NS = 'webview'
 
-const locales: Record<string, Record<string, string>> = {
+addI18nNamespace(I18N_NS, {
   'en-US': {
     back: 'Back',
     forward: 'Forward',
@@ -65,19 +66,7 @@ const locales: Record<string, Record<string, string>> = {
     viewPageSource: '显示网页源代码',
     inspect: '检查',
   },
-}
-
-let i18nRegistered = false
-
-function ensureI18n() {
-  if (i18nRegistered || !i18n.isInitialized) return
-  i18nRegistered = true
-  for (const [lng, resources] of Object.entries(locales)) {
-    if (!i18n.hasResourceBundle(lng, I18N_NS)) {
-      i18n.addResourceBundle(lng, I18N_NS, resources)
-    }
-  }
-}
+})
 
 export interface ContextMenuParams {
   x: number
@@ -182,15 +171,11 @@ function resolveFeatures(
   return contextMenu
 }
 
-function t(key: string): string {
-  ensureI18n()
-  return i18n.t(key, { ns: I18N_NS })
-}
-
 function buildContextMenuItems(
   wv: Electron.WebviewTag,
   params: ContextMenuParams,
   features: ContextMenuFeatures,
+  t: (key: string) => string,
   callbacks: {
     onNewWindow?: (url: string) => void
     onInspectElement?: (x: number, y: number) => void
@@ -394,6 +379,7 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
   },
   ref
 ) {
+  const { t } = useTranslation(I18N_NS)
   const containerRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const panelSlotRef = useRef<HTMLDivElement>(null)
@@ -407,6 +393,9 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
   onPendingInspectHandledRef.current = onPendingInspectHandled
 
   const contextMenuFeatures = resolveFeatures(contextMenu)
+
+  const tRef = useRef(t)
+  tRef.current = t
 
   // Keep callbacks in refs to avoid re-creating webview on callback changes
   const callbacksRef = useRef({
@@ -550,11 +539,17 @@ const Webview = forwardRef<WebviewHandle, WebviewProps>(function Webview(
       wv.addEventListener('context-menu', (e) => {
         const { params } = e as unknown as ContextMenuEvent
         const features = contextMenuFeaturesRef.current!
-        const items = buildContextMenuItems(wv, params, features, {
-          onNewWindow: (url) => callbacksRef.current.onNewWindow?.(url),
-          onInspectElement: (x, y) =>
-            callbacksRef.current.onInspectElement?.(x, y),
-        })
+        const items = buildContextMenuItems(
+          wv,
+          params,
+          features,
+          tRef.current,
+          {
+            onNewWindow: (url) => callbacksRef.current.onNewWindow?.(url),
+            onInspectElement: (x, y) =>
+              callbacksRef.current.onInspectElement?.(x, y),
+          }
+        )
 
         const extra = callbacksRef.current.extraContextMenuItems?.(params, wv)
         if (extra && extra.length > 0) {
